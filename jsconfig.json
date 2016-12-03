@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "target": "ES6"
+    },
+    "files": [
+        "src/"
+    ],
+    "typescript.tsserver.trace": "verbose"
+}
