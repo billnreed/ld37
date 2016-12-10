@@ -1,6 +1,6 @@
 {"frames": {
 
-"Click.png":
+"click":
 {
 	"frame": {"x":0,"y":0,"w":76,"h":139},
 	"rotated": false,
@@ -8,7 +8,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":76,"h":139},
 	"sourceSize": {"w":76,"h":139}
 },
-"Highlight.png":
+"highlight":
 {
 	"frame": {"x":0,"y":139,"w":76,"h":139},
 	"rotated": false,
@@ -16,7 +16,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":76,"h":139},
 	"sourceSize": {"w":76,"h":139}
 },
-"Neutral.png":
+"neutral":
 {
 	"frame": {"x":0,"y":278,"w":76,"h":139},
 	"rotated": false,
