@@ -1,5 +1,5 @@
 import Phaser from './phaser'
-import { loadMouseCursor, createMouseCursor, setMouseCursorState } from './mouse'
+import { loadMouseCursor, createMouseCursor, setMouseCursorState, hideMouseCursor, showMouseCursor } from './mouse'
 
 const observe = {
   'Pizza': {
@@ -16,11 +16,11 @@ const observe = {
   },
   'Window': {
     count: 0,
-    text: ['On either side the river lie..', "No.. I ... can't look..."]
+    text: ['On either side the river lie.', "No ... I can't look ..."]
   }
 }
 
-function getObserveText(key) {
+function getObserveText (key) {
   const index = observe[key].count
   const text = observe[key].text[index]
   // If there are multiple observations, move to the next
@@ -104,9 +104,11 @@ export default class GamePlay {
     if (newMode === 'TALKING') {
       this.hoverText.visible = false
       this.speechText.visible = true
+      hideMouseCursor()
     } else if (newMode === 'INTERACT') {
       this.hoverText.visible = true
       this.speechText.visible = false
+      showMouseCursor()
     }
   }
 

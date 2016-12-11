@@ -33,3 +33,11 @@ export function setMouseCursorState (state) {
 export function revertMouseCursorState () {
   cursor.frameName = prevCursorState
 }
+
+export function hideMouseCursor () {
+  cursor.visible = false
+}
+
+export function showMouseCursor () {
+  cursor.visible = true
+}
