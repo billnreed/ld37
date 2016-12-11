@@ -66,6 +66,7 @@ export default class GamePlay {
       image.scale.setTo(0.75, 0.75)
     })
 
+    // Add the hotspots from tiled
     const hotspots = map.layers.find(layer => layer.name === 'Hotspots').objects
     const hotspotSprites = hotspots.map(spot => {
       const width = spot.width * 0.75
