@@ -22,6 +22,11 @@ export function createMouseCursor () {
   this.game.input.mousePointer.leftButton.onUp.add(() => {
     revertMouseCursorState()
   }, this)
+
+  // Ensure cursor stays on top of text
+  const cursorGroup = this.game.add.group()
+  cursorGroup.add(cursor)
+  this.game.world.bringToTop(cursorGroup)
 }
 
 // click, highlight or neutral

@@ -1,4 +1,6 @@
+import inkjs from 'inkjs'
 import Phaser from './phaser'
+
 import { loadMouseCursor, createMouseCursor, setMouseCursorState, hideMouseCursor, showMouseCursor } from './mouse'
 
 const observe = {
@@ -40,30 +42,42 @@ export default class GamePlay {
   }
 
   preload () {
-    this.game.load.image('room', 'assets/background.png')
+    this.game.load.image('Background', 'assets/background.png')
+    this.game.load.image('Lady', 'assets/Lady.png')
     this.game.load.json('map', 'assets/map.json')
     this.game.load.audio('hungry', 'assets/hungry.wav')
     this.game.load.audio('hair', 'assets/hair.wav')
+
+    this.game.load.json('story', 'assets/story.json')
+
     loadMouseCursor.call(this)
   }
 
   create () {
-    const roomImage = this.game.add.image(0, 0, 'room')
-    roomImage.scale.setTo(0.75, 0.75)
-
     observeSounds['Pizza'] = this.game.add.audio('hungry')
     observeSounds['Hair'] = this.game.add.audio('hair')
 
     const map = this.game.cache.getJSON('map')
+
+    // Add all of the image layers from tiled
+    const imageLayers = map.layers.filter(layer => layer.type === 'imagelayer')
+    imageLayers.forEach(layer => {
+      const image = this.game.add.image(layer.offsetx * 0.75 || 0, layer.offsety * 0.75 || 0, layer.name)
+      image.scale.setTo(0.75, 0.75)
+    })
+
     const hotspots = map.layers.find(layer => layer.name === 'Hotspots').objects
     const hotspotSprites = hotspots.map(spot => {
       const width = spot.width * 0.75
       const height = spot.height * 0.75
-      const bmd = this.game.add.bitmapData(width, height)
+      // Take the larger of the two dimensions to account for rotated objects
+      const size = Math.max(width, height)
+      const bmd = this.game.add.bitmapData(size, size)
 
       bmd.ctx.beginPath()
       if (spot.ellipse) {
-        bmd.ctx.ellipse(width / 2, height / 2, width / 2, height / 2, 0, 0, 2 * Math.PI)
+        const rotation = (spot.rotation * Math.PI) / 180
+        bmd.ctx.ellipse(size / 2, size / 2, width / 2, height / 2, rotation, 0, 2 * Math.PI)
       } else {
         bmd.ctx.rect(0, 0, width, height)
       }
@@ -93,6 +107,22 @@ export default class GamePlay {
     this.speechText = this.game.add.text(this.game.width / 2, this.game.height - 100, '', { fill: '#ff0000' })
     this.speechText.visible = false
 
+    // Add dialogue
+    this.dialogueGroup = this.game.add.group()
+
+    const myBitmap = this.game.add.bitmapData(this.game.width, 250)
+    const grd = myBitmap.context.createLinearGradient(0, 0, 0, 250)
+    grd.addColorStop(0, 'black')
+    grd.addColorStop(1, 'rgba(31,0,0,0.2)')
+    myBitmap.context.fillStyle = grd
+    myBitmap.context.fillRect(0, 0, this.game.width, 250)
+    const gradient = this.game.add.sprite(0, 0, myBitmap)
+    this.dialogueGroup.add(gradient)
+    this.mainText = this.game.add.text(0, 0, '', { fill: '#ffffff' }, this.dialogueGroup)
+
+    this.story = new inkjs.Story(this.game.cache.getJSON('story'))
+    this.continueStory()
+
     createMouseCursor.call(this)
   }
 
@@ -118,5 +148,56 @@ export default class GamePlay {
     this.speechText.text = text
 
     this.game.time.events.add(Phaser.Timer.SECOND * 3, () => this.switchMode(oldMode), this)
+  }
+
+  continueStory () {
+    this.mainText.text = ''
+    this.mainText.alpha = 0.1
+
+    // Generate story text - loop through available content
+    while (this.story.canContinue) {
+      // Get ink to generate the next paragraph
+      const paragraphText = this.story.Continue()
+      this.mainText.text += paragraphText
+    }
+
+    // Fade in text
+    this.game.add.tween(this.mainText).to({ alpha: 1 }, 1000, 'Linear', true)
+
+    // Present choices after a short delay
+    this.game.time.events.add(Phaser.Timer.HALF, this.presentChoices, this)
+  }
+
+  presentChoices () {
+    const choicesText = []
+    this.story.currentChoices.forEach((choice, i) => {
+      const choiceText = this.game.add.text(0, i * 30 + (this.mainText.y + this.mainText.height + 20), choice.text, { fill: '#ffffff' }, this.dialogueGroup)
+      choicesText.push(choiceText)
+      choiceText.inputEnabled = true
+
+      // Highlight text on hover
+      choiceText.stroke = '#de77ae'
+      choiceText.strokeThickness = 0
+      choiceText.events.onInputOut.add(() => { choiceText.strokeThickness = 0 })
+      choiceText.events.onInputOver.add(() => { choiceText.strokeThickness = 4 })
+
+      // Click on choice
+      choiceText.events.onInputDown.add(() => {
+        // Remove all existing choices
+        choicesText.forEach(text => text.destroy())
+
+        // Tell the story where to go next
+        this.story.ChooseChoiceIndex(choice.index)
+
+        // Aaand loop
+        this.continueStory()
+      }, this)
+    })
+
+    // Fade in choices
+    choicesText.forEach(text => {
+      text.alpha = 0.1
+      this.game.add.tween(text).to({ alpha: 1 }, 1000, 'Linear', true)
+    })
   }
 }

@@ -1,9 +1,22 @@
 { "height":100,
  "layers":[
         {
-         "height":100,
+         "height":0,
          "image":"background.png",
          "name":"Background",
+         "opacity":1,
+         "type":"imagelayer",
+         "visible":true,
+         "width":0,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "height":100,
+         "image":"Lady.png",
+         "name":"Lady",
+         "offsetx":323,
+         "offsety":257,
          "opacity":1,
          "type":"imagelayer",
          "visible":true,
@@ -14,7 +27,7 @@
         {
          "color":"#c80000",
          "draworder":"topdown",
-         "height":100,
+         "height":0,
          "name":"Hotspots",
          "objects":[
                 {
@@ -29,26 +42,15 @@
                  "y":602
                 }, 
                 {
-                 "height":41,
-                 "id":2,
-                 "name":"Key",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":39,
-                 "x":582,
-                 "y":706
-                }, 
-                {
-                 "height":56,
+                 "height":60,
                  "id":3,
                  "name":"Hair",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":65,
-                 "x":656,
-                 "y":381
+                 "width":100,
+                 "x":782,
+                 "y":268
                 }, 
                 {
                  "ellipse":true,
@@ -61,15 +63,38 @@
                  "width":268,
                  "x":227,
                  "y":73
+                }, 
+                {
+                 "ellipse":true,
+                 "height":526,
+                 "id":6,
+                 "name":"Mirror",
+                 "rotation":21,
+                 "type":"",
+                 "visible":true,
+                 "width":223.94,
+                 "x":1319.8,
+                 "y":119.52
+                }, 
+                {
+                 "height":5,
+                 "id":9,
+                 "name":"Tassel",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":1,
+                 "x":1025,
+                 "y":479
                 }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
-         "width":80,
+         "width":0,
          "x":0,
          "y":0
         }],
- "nextobjectid":6,
+ "nextobjectid":10,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,
