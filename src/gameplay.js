@@ -1,10 +1,11 @@
 import Phaser from './phaser'
-import { loadMouseCursor, createMouseCursor, setMouseCursorState, revertMouseCursorState } from './mouse'
+import { loadMouseCursor, createMouseCursor, setMouseCursorState } from './mouse'
 
 const observe = {
   'Pizza': 'I get so hungry in the morning ...',
   'Hair': 'Wow, I have a great head of hair.',
-  'Key': 'The key to my freedom, and more ...'
+  'Key': 'The key to my freedom, and more ...',
+  'Window': "I ... can't look..."
 }
 
 const observeSounds = {}
@@ -16,9 +17,8 @@ export default class GamePlay {
   }
 
   preload () {
-    this.game.load.image('room', 'assets/room.png')
+    this.game.load.image('room', 'assets/background.png')
     this.game.load.json('map', 'assets/map.json')
-    this.game.load.image('pic', 'assets/jim_sachs_time_crystal.png')
     this.game.load.audio('hungry', 'assets/hungry.wav')
     this.game.load.audio('hair', 'assets/hair.wav')
     loadMouseCursor.call(this)
@@ -39,7 +39,11 @@ export default class GamePlay {
       const bmd = this.game.add.bitmapData(width, height)
 
       bmd.ctx.beginPath()
-      bmd.ctx.rect(0, 0, width, height)
+      if (spot.ellipse) {
+        bmd.ctx.ellipse(width / 2, height / 2, width / 2, height / 2, 0, 0, 2 * Math.PI)
+      } else {
+        bmd.ctx.rect(0, 0, width, height)
+      }
       bmd.ctx.fillStyle = '#ff0000'
       bmd.ctx.fill()
 

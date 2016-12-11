@@ -2,7 +2,7 @@
  "layers":[
         {
          "height":100,
-         "image":"src\/assets\/room.png",
+         "image":"background.png",
          "name":"Background",
          "opacity":1,
          "type":"imagelayer",
@@ -49,9 +49,19 @@
                  "width":65,
                  "x":656,
                  "y":381
+                }, 
+                {
+                 "ellipse":true,
+                 "height":496,
+                 "id":4,
+                 "name":"Window",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":268,
+                 "x":227,
+                 "y":73
                 }],
-         "offsetx":1,
-         "offsety":1,
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -59,7 +69,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":4,
+ "nextobjectid":6,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,
