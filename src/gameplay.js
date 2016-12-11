@@ -19,6 +19,34 @@ const observe = {
   'Window': {
     count: 0,
     text: ['On either side the river lie.', "No ... I can't look ..."]
+  },
+  'Mirror': {
+    count: 0,
+    text: ['My only respite from this weary room.']
+  },
+  'Tassel': {
+    count: 0,
+    text: ['A little detail goes a long way']
+  },
+  'Book': {
+    count: 0,
+    text: ['Some poems by Alfred, Lord Tennyson. What a hack']
+  },
+  'Lantern': {
+    count: 0,
+    text: ['The lantern fills my heart with hope and longing']
+  },
+  'Yarn': {
+    count: 0,
+    text: ['This cursed yarn is all my hands have to play with']
+  },
+  'Scarf': {
+    count: 0,
+    text: ["What do I need a scarf for? I can't even leave this room, let alone venture outside"]
+  },
+  'Hook': {
+    count: 0,
+    text: ['A hook to hang a scarf on. What more could one ask for?']
   }
 }
 
@@ -46,6 +74,7 @@ export default class GamePlay {
     this.game.load.image('Book', 'assets/book.png')
     this.game.load.image('Lady', 'assets/Lady.png')
     this.game.load.image('Yarn', 'assets/yarn.png')
+    this.game.load.image('LadyArms', 'assets/arms.png')
     this.game.load.atlasJSONHash('LadyHead', 'assets/ladyblink.png', 'assets/ladyblink.json')
     this.game.load.json('map', 'assets/map.json')
     this.game.load.audio('hungry', 'assets/hungry.wav')
@@ -92,12 +121,15 @@ export default class GamePlay {
       } else {
         bmd.ctx.rect(0, 0, width, height)
       }
-      bmd.ctx.fillStyle = '#00ff00' // 'transparent'
+      bmd.ctx.fillStyle = '#00ff00'
       bmd.ctx.fill()
 
       const x = spot.x * 0.75
       const y = spot.y * 0.75
       const sprite = this.game.add.sprite(x, y, bmd)
+
+      // comment for DEBUG
+      sprite.alpha = 0.0
       sprite.angle = spot.rotation
       sprite.boundsPadding = 0
       // sprite.width = spot.width * 0.75
@@ -122,7 +154,8 @@ export default class GamePlay {
     this.hoverText.stroke = '#000000'
     this.hoverText.strokeThickness = 4
 
-    this.speechText = this.game.add.text(this.game.width / 2, this.game.height - 50, '', { fill: '#ffffff' })
+    this.speechText = this.game.add.text(0, 0, '', { fill: '#ffffff', boundsAlignH: 'left', boundsAlignV: 'middle' })
+    this.speechText.setTextBounds(0, this.game.height - 150, this.game.width, 50)
     this.speechText.stroke = '#000000'
     this.speechText.strokeThickness = 4
     this.speechText.visible = false

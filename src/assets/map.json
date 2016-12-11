@@ -64,6 +64,19 @@
          "y":0
         }, 
         {
+         "height":100,
+         "image":"arms.png",
+         "name":"LadyArms",
+         "offsetx":794,
+         "offsety":582,
+         "opacity":1,
+         "type":"imagelayer",
+         "visible":true,
+         "width":80,
+         "x":0,
+         "y":0
+        }, 
+        {
          "color":"#c80000",
          "draworder":"topdown",
          "height":0,
