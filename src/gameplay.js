@@ -2,10 +2,33 @@ import Phaser from './phaser'
 import { loadMouseCursor, createMouseCursor, setMouseCursorState } from './mouse'
 
 const observe = {
-  'Pizza': 'I get so hungry in the morning ...',
-  'Hair': 'Wow, I have a great head of hair.',
-  'Key': 'The key to my freedom, and more ...',
-  'Window': "I ... can't look..."
+  'Pizza': {
+    count: 0,
+    text: ['I get so hungry in the morning ...']
+  },
+  'Hair': {
+    count: 0,
+    text: ['Wow, I have a great head of hair.']
+  },
+  'Key': {
+    count: 0,
+    text: ['The key to my freedom, and more ...']
+  },
+  'Window': {
+    count: 0,
+    text: ['On either side the river lie..', "No.. I ... can't look..."]
+  }
+}
+
+function getObserveText(key) {
+  const index = observe[key].count
+  const text = observe[key].text[index]
+  // If there are multiple observations, move to the next
+  if (index < observe[key].text.length - 1) {
+    ++observe[key].count
+  }
+
+  return text
 }
 
 const observeSounds = {}
@@ -61,7 +84,7 @@ export default class GamePlay {
         setMouseCursorState('neutral')
       })
       sprite.events.onInputDown.add(() => {
-        this.say(observe[spot.name])
+        this.say(getObserveText(spot.name))
         if (observeSounds[spot.name]) observeSounds[spot.name].play()
       })
     })
