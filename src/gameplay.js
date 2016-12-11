@@ -43,7 +43,10 @@ export default class GamePlay {
 
   preload () {
     this.game.load.image('Background', 'assets/background.png')
+    this.game.load.image('Book', 'assets/book.png')
     this.game.load.image('Lady', 'assets/Lady.png')
+    this.game.load.image('Yarn', 'assets/yarn.png')
+    this.game.load.atlasJSONHash('LadyHead', 'assets/ladyblink.png', 'assets/ladyblink.json')
     this.game.load.json('map', 'assets/map.json')
     this.game.load.audio('hungry', 'assets/hungry.wav')
     this.game.load.audio('hair', 'assets/hair.wav')
@@ -62,8 +65,17 @@ export default class GamePlay {
     // Add all of the image layers from tiled
     const imageLayers = map.layers.filter(layer => layer.type === 'imagelayer')
     imageLayers.forEach(layer => {
-      const image = this.game.add.image(layer.offsetx * 0.75 || 0, layer.offsety * 0.75 || 0, layer.name)
-      image.scale.setTo(0.75, 0.75)
+      const x = layer.offsetx * 0.75 || 0
+      const y = layer.offsety * 0.75 || 0
+      if (layer.name === 'LadyHead') {
+        const lady = this.game.add.sprite(x, y, 'LadyHead', 'LadyHead000')
+        lady.scale.setTo(0.75, 0.75)
+        lady.animations.add('blink', Phaser.Animation.generateFrameNames('LadyHead', 1, 4, '', 3), 10, false, false)
+        this.game.time.events.loop(Phaser.Timer.SECOND * 3, () => lady.animations.play('blink'), this)
+      } else {
+        const image = this.game.add.image(x, y, layer.name)
+        image.scale.setTo(0.75, 0.75)
+      }
     })
 
     // Add the hotspots from tiled
@@ -71,25 +83,27 @@ export default class GamePlay {
     const hotspotSprites = hotspots.map(spot => {
       const width = spot.width * 0.75
       const height = spot.height * 0.75
-      // Take the larger of the two dimensions to account for rotated objects
-      const size = Math.max(width, height)
-      const bmd = this.game.add.bitmapData(size, size)
+
+      const bmd = this.game.add.bitmapData(width, height)
 
       bmd.ctx.beginPath()
       if (spot.ellipse) {
-        const rotation = (spot.rotation * Math.PI) / 180
-        bmd.ctx.ellipse(size / 2, size / 2, width / 2, height / 2, rotation, 0, 2 * Math.PI)
+        bmd.ctx.ellipse(width / 2, height / 2, width / 2, height / 2, 0, 0, 2 * Math.PI)
       } else {
         bmd.ctx.rect(0, 0, width, height)
       }
-      bmd.ctx.fillStyle = '#ff0000'
+      bmd.ctx.fillStyle = '#00ff00' // 'transparent'
       bmd.ctx.fill()
 
-      const sprite = this.game.add.sprite(spot.x * 0.75, spot.y * 0.75, bmd)
+      const x = spot.x * 0.75
+      const y = spot.y * 0.75
+      const sprite = this.game.add.sprite(x, y, bmd)
+      sprite.angle = spot.rotation
       sprite.boundsPadding = 0
       // sprite.width = spot.width * 0.75
       // sprite.height = spot.height * 0.75
       sprite.inputEnabled = true
+      sprite.input.pixelPerfectOver = true
       sprite.events.onInputOver.add(() => {
         this.hoverText.text = spot.name
         setMouseCursorState('highlight')
@@ -104,8 +118,13 @@ export default class GamePlay {
       })
     })
 
-    this.hoverText = this.game.add.text(this.game.width / 2, this.game.height - 100, '', { fill: '#ff0000' })
-    this.speechText = this.game.add.text(this.game.width / 2, this.game.height - 100, '', { fill: '#ff0000' })
+    this.hoverText = this.game.add.text(this.game.width / 2, this.game.height - 50, '', { fill: '#ffffff' })
+    this.hoverText.stroke = '#000000'
+    this.hoverText.strokeThickness = 4
+
+    this.speechText = this.game.add.text(this.game.width / 2, this.game.height - 50, '', { fill: '#ffffff' })
+    this.speechText.stroke = '#000000'
+    this.speechText.strokeThickness = 4
     this.speechText.visible = false
 
     // Add dialogue
@@ -117,9 +136,11 @@ export default class GamePlay {
     grd.addColorStop(1, 'rgba(31,0,0,0.2)')
     myBitmap.context.fillStyle = grd
     myBitmap.context.fillRect(0, 0, this.game.width, 250)
-    const gradient = this.game.add.sprite(0, 0, myBitmap)
-    this.dialogueGroup.add(gradient)
+    // const gradient = this.game.add.sprite(0, 0, myBitmap)
+    // this.dialogueGroup.add(gradient)
     this.mainText = this.game.add.text(0, 0, '', { fill: '#ffffff' }, this.dialogueGroup)
+    this.mainText.stroke = '#000000'
+    this.mainText.strokeThickness = 4
 
     this.story = new inkjs.Story(this.game.cache.getJSON('story'))
     this.continueStory()
@@ -177,10 +198,10 @@ export default class GamePlay {
       choiceText.inputEnabled = true
 
       // Highlight text on hover
-      choiceText.stroke = '#de77ae'
-      choiceText.strokeThickness = 0
-      choiceText.events.onInputOut.add(() => { choiceText.strokeThickness = 0 })
-      choiceText.events.onInputOver.add(() => { choiceText.strokeThickness = 4 })
+      choiceText.stroke = '#000000'
+      choiceText.strokeThickness = 4
+      choiceText.events.onInputOut.add(() => { choiceText.stroke = '#000000' })
+      choiceText.events.onInputOver.add(() => { choiceText.stroke = '#de77ae' })
 
       // Click on choice
       choiceText.events.onInputDown.add(() => {

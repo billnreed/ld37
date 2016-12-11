@@ -1,0 +1,52 @@
+{"frames": {
+
+"LadyHead000":
+{
+	"frame": {"x":0,"y":0,"w":240,"h":240},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":240,"h":240},
+	"sourceSize": {"w":240,"h":240}
+},
+"LadyHead001":
+{
+	"frame": {"x":240,"y":0,"w":240,"h":240},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":240,"h":240},
+	"sourceSize": {"w":240,"h":240}
+},
+"LadyHead002":
+{
+	"frame": {"x":480,"y":0,"w":240,"h":240},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":240,"h":240},
+	"sourceSize": {"w":240,"h":240}
+},
+"LadyHead003":
+{
+	"frame": {"x":720,"y":0,"w":240,"h":240},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":240,"h":240},
+	"sourceSize": {"w":240,"h":240}
+},
+"LadyHead004":
+{
+	"frame": {"x":960,"y":0,"w":240,"h":240},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":240,"h":240},
+	"sourceSize": {"w":240,"h":240}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "ladyblink.png",
+	"format": "RGBA8888",
+	"size": {"w":1200,"h":240},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:7c025e22c4a3fbf2d8f586516da81a9f:66bf638bf0f3c4f4205ba8981e2c9ac5:9149db05f6201661a18688c38a1b2e6b$"
+}
+}
