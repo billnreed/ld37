@@ -9,7 +9,7 @@ var line = []
 var wordIndex = 0
 var lineIndex = 0
 
-var wordDelay = 55
+var wordDelay = 75
 var lineDelay = 400
 
 export default class Intro {
@@ -22,7 +22,7 @@ export default class Intro {
   }
 
   preload () {
-    this.game.load.audio('text', 'assets/text.wav')
+    this.game.load.audio('text', 'assets/murmurs/mweep.wav')
   }
 
   create () {

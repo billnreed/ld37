@@ -4,4 +4,4 @@ import game from './game'
 
 game.state.add('Intro', new Intro(game))
 game.state.add('Gameplay', new GamePlay(game))
-game.state.start('Gameplay')
+game.state.start('Intro')
