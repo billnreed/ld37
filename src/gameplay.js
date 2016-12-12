@@ -115,7 +115,6 @@ export default class GamePlay {
     this.game.load.image('HandButton', 'assets/handButton.png')
     this.game.load.image('LadyArms', 'assets/arms.png')
     this.game.load.image('Scarf', 'assets/scarfWall.png')
-    this.game.load.image('ScarfInv', 'assets/scarfinv.png')
 
     this.game.load.image('GameOverWin', 'assets/gameover_win.png')
     this.game.load.image('GameOverDie', 'assets/gameover_die.png')
