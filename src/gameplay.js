@@ -4,7 +4,7 @@ import Phaser from './phaser'
 import { loadMouseCursor, createMouseCursor, setMouseCursorState, hideMouseCursor, showMouseCursor, setHeldItem, releaseItem } from './mouse'
 
 const wordDelay = 75
-const lineDelay = 400
+const inventoryWidth = 130
 
 const observe = {
   'Pizza': {
@@ -21,7 +21,7 @@ const observe = {
   },
   'Window': {
     count: 0,
-    text: ['On either side the river lie.', "No ... I can't look ..."]
+    text: ['On either side the river lie.', "No ... I can't look ...", lookOutWindow]
   },
   'Mirror': {
     count: 0,
@@ -65,7 +65,7 @@ const inventory = [
   },
   {
     name: 'Book',
-    acquired: true,
+    acquired: false,
     used: false,
     key: 'Book',
     usedWith: {
@@ -73,6 +73,11 @@ const inventory = [
     }
   }
 ]
+
+function lookOutWindow () {
+  this.store.ChoosePathString('look_out_window')
+  this.continueStory().then(() => this.youDie())
+}
 
 function talkToMirror () {
   this.story.ChoosePathString('long_argument')
@@ -460,21 +465,20 @@ export default class GamePlay {
   }
 
   setupInventory () {
-    const width = 130
-    const myBitmap = this.game.add.bitmapData(width, this.game.height)
-    const grd = myBitmap.context.createLinearGradient(0, 0, width, 0)
+    const myBitmap = this.game.add.bitmapData(inventoryWidth, this.game.height)
+    const grd = myBitmap.context.createLinearGradient(0, 0, inventoryWidth, 0)
     grd.addColorStop(0, 'black')
     grd.addColorStop(1, 'rgba(31,0,0,0.2)')
     myBitmap.context.fillStyle = grd
-    myBitmap.context.fillRect(0, 0, width, this.game.height)
+    myBitmap.context.fillRect(0, 0, inventoryWidth, this.game.height)
 
-    const gradient = this.game.add.sprite(-width, 0, myBitmap)
+    const gradient = this.game.add.sprite(-inventoryWidth, 0, myBitmap)
     gradient.isOpen = false
     this.dialogueGroup.add(gradient)
 
     const basket = this.game.add.button(0, this.game.world.height - 120, 'Basket', () => {
       if (gradient.isOpen) {
-        this.game.add.tween(gradient).to({ x: -width }, 200, Phaser.Easing.Cubic.In, true)
+        this.game.add.tween(gradient).to({ x: -inventoryWidth }, 200, Phaser.Easing.Cubic.In, true)
         gradient.isOpen = false
       } else {
         this.game.add.tween(gradient).to({ x: 0 }, 200, Phaser.Easing.Cubic.In, true)
@@ -499,6 +503,12 @@ export default class GamePlay {
       // so we can position them correctly
       const image = this.game.cache.getImage(item.key)
       accumItemHeight += image.height + 10
+
+      // If the item is too wide for the inventory, scale it to fit
+      if (image.width > inventoryWidth) {
+        const scale = inventoryWidth / image.width
+        sprite.scale.setTo(scale, scale)
+      }
 
       item.sprite = sprite
       sprite.inputEnabled = true
