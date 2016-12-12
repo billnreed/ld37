@@ -21,7 +21,7 @@ const observe = {
   },
   'Window': {
     count: 0,
-    text: ['On either side the river lie', "No ... I can't look ...", lookOutWindow]
+    text: ["\"On either side the river lie\nLong fields of barley and of rye\"", "No ... I can't look ..."]
   },
   'Mirror': {
     count: 0,
@@ -333,10 +333,10 @@ export default class GamePlay {
     this.mainText.alpha = 0.0
 
     return this.writeDialogue().then(state => {
-      if (state === 'MORE_TEXT') {
-        return this.presentChoices()
-      } else if (state === 'NO_MORE') {
+      if (state === 'NO_MORE') {
         return this.endDialogue()
+      } else if (state === 'MORE_TEXT') {
+        return this.presentChoices()
       } else {
         throw new Error(`Unknown state ${state}`)
       }
@@ -400,7 +400,11 @@ export default class GamePlay {
           // We hit the last section
           // Remove handler and resolve
           this.game.input.mousePointer.leftButton.onDown.remove(onDownHandler, this)
-          resolve('MORE_TEXT')
+          if (this.haveMoreChoices()) {
+            resolve('MORE_TEXT')
+          } else {
+            resolve('NO_MORE')
+          }
         }
       }
 
@@ -422,9 +426,13 @@ export default class GamePlay {
     })
   }
 
+  haveMoreChoices () {
+    return this.story.currentChoices.length !== 0
+  }
+
   presentChoices () {
     // At end of dialogue, switch back to regular OBSERVEion
-    if (this.story.currentChoices.length === 0) {
+    if (!this.haveMoreChoices()) {
       return new Promise((resolve, reject) => {
         const onDownHandler = () => {
           resolve(this.endDialogue())
