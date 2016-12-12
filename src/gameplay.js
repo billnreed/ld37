@@ -263,14 +263,13 @@ export default class GamePlay {
     this.hoverText.stroke = '#000000'
     this.hoverText.strokeThickness = 4
 
-    this.speechText = this.game.add.text(0, 0, '', { fill: '#ffffff', boundsAlignH: 'left', boundsAlignV: 'middle' })
-    this.speechText.setTextBounds(0, this.game.height - 150, this.game.width, 50)
+    // Add dialogue
+    this.dialogueGroup = this.game.add.group()
+
+    this.speechText = this.game.add.text(140, 0, '', { fill: '#ffffff', wordWrap: true, wordWrapWidth: 800 }, this.dialogueGroup)
     this.speechText.stroke = '#000000'
     this.speechText.strokeThickness = 4
     this.speechText.visible = false
-
-    // Add dialogue
-    this.dialogueGroup = this.game.add.group()
 
     const myBitmap = this.game.add.bitmapData(this.game.width, 250)
     const grd = myBitmap.context.createLinearGradient(0, 0, 0, 250)

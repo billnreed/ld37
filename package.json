@@ -20,8 +20,8 @@
   },
   "scripts": {
     "pack": "webpack",
-    "production": "webpack -p",
     "lint": "eslint ./src",
-    "serve": "webpack-dev-server"
+    "serve": "webpack-dev-server",
+    "publish": "yarn run pack && publish.cmd"
   }
 }
