@@ -3,6 +3,9 @@ import Phaser from './phaser'
 
 import { loadMouseCursor, createMouseCursor, setMouseCursorState, hideMouseCursor, showMouseCursor, setHeldItem, releaseItem } from './mouse'
 
+const wordDelay = 75
+const lineDelay = 400
+
 const observe = {
   'Pizza': {
     count: 0,
@@ -124,6 +127,7 @@ export default class GamePlay {
     this.game.load.audio('music', 'assets/Star Commander1.wav')
     this.game.load.audio('ClickButton', 'assets/clickButton.wav')
     this.game.load.audio('PickupItem', 'assets/pickupItem.wav')
+    this.game.load.audio('text', 'assets/murmurs/mweep.wav')
 
     this.game.load.json('story', 'assets/test.json')
 
@@ -137,6 +141,7 @@ export default class GamePlay {
     // Sound effects
     this.clickButtonSound = this.game.add.audio('ClickButton')
     this.pickupItemSound = this.game.add.audio('PickupItem')
+    this.textsound = this.game.add.audio('text')
 
     const map = this.game.cache.getJSON('map')
 
@@ -334,13 +339,19 @@ export default class GamePlay {
     // Display first section of text
     if (sections.length > 0) {
       ++sectionCounter
-      this.mainText.text = sections[sectionIndex]
+      this.nextLine(sections[sectionIndex])
       this.game.add.tween(this.mainText).to({ alpha: 1 }, 1000, 'Linear', true)
     }
 
     // Loop through the rest of text. Resolve promise when there is no more
     return new Promise((resolve, reject) => {
       const onDownHandler = () => {
+        // Check if we are already murmuring, only allow clicks
+        // after murmuring is completeu
+        if (this.murmuring > 0) {
+          return
+        }
+
         ++sectionIndex
 
         if (sectionIndex < sections.length) {
@@ -352,7 +363,7 @@ export default class GamePlay {
             sectionCounter = 0
           }
 
-          this.mainText.text += sections[sectionIndex]
+          this.nextLine(sections[sectionIndex])
         } else {
           // We hit the last section
           // Remove handler and resolve
@@ -588,5 +599,37 @@ export default class GamePlay {
 
     // Add to group to ensure mouse cursor can go over it
     this.dialogueGroup.add(gameOver)
+  }
+
+  // Following functions all for murmuring
+  nextLine (line) {
+    //  Split the current line on spaces, so one word per array element
+    const splitLine = line.split(' ')  // Word-wise murmur
+
+    // This counter controls when murmuring is finished
+    this.murmuring = splitLine.length + 1
+
+    //  Reset the word index to zero (the first word in the line)
+    this.wordIndex = 0
+
+    //  Call the 'nextWord' function once for each word in the line (line.length)
+    this.game.time.events.repeat(wordDelay, splitLine.length + 1, this.nextWord, this, splitLine)
+  }
+
+  nextWord (line) {
+    --this.murmuring
+
+    //  Last word?
+    if (this.wordIndex === line.length) {
+      //  Add a carriage return
+      this.mainText.text = this.mainText.text.concat('\n')
+    } else {
+      //  Add the next word onto the text string, followed by a space
+      this.mainText.text = this.mainText.text.concat(line[this.wordIndex] + ' ')
+      this.textsound.play()
+
+      //  Advance the word index to the next word in the line
+      this.wordIndex++
+    }
   }
 }
