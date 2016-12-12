@@ -12,19 +12,6 @@
          "y":0
         }, 
         {
-         "height":100,
-         "image":"scarfWall.png",
-         "name":"Scarf",
-         "offsetx":565,
-         "offsety":173,
-         "opacity":1,
-         "type":"imagelayer",
-         "visible":true,
-         "width":80,
-         "x":0,
-         "y":0
-        }, 
-        {
          "height":0,
          "image":"Lady.png",
          "name":"Lady",
@@ -39,7 +26,7 @@
         }, 
         {
          "height":0,
-         "image":"LadyHead.png",
+         "image":"src\/assets\/LadyHead.png",
          "name":"LadyHead",
          "offsetx":779,
          "offsety":263,
@@ -52,7 +39,7 @@
         }, 
         {
          "height":0,
-         "image":"book.png",
+         "image":"src\/assets\/book.png",
          "name":"Book",
          "offsetx":139,
          "offsety":881,
@@ -65,7 +52,7 @@
         }, 
         {
          "height":0,
-         "image":"yarn.png",
+         "image":"src\/assets\/yarn.png",
          "name":"Yarn",
          "offsetx":992,
          "offsety":452,
@@ -78,7 +65,7 @@
         }, 
         {
          "height":0,
-         "image":"arms.png",
+         "image":"src\/assets\/arms.png",
          "name":"LadyArms",
          "offsetx":794,
          "offsety":582,
@@ -86,6 +73,32 @@
          "type":"imagelayer",
          "visible":true,
          "width":0,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "height":100,
+         "image":"CutOutMirrorGirl.png",
+         "name":"CutOutMirrorGirl",
+         "offsetx":1134,
+         "offsety":355,
+         "opacity":0.5,
+         "type":"imagelayer",
+         "visible":true,
+         "width":80,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "height":100,
+         "image":"scarfWall.png",
+         "name":"Scarf",
+         "offsetx":560,
+         "offsety":176,
+         "opacity":1,
+         "type":"imagelayer",
+         "visible":true,
+         "width":80,
          "x":0,
          "y":0
         }, 
@@ -220,7 +233,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "width":0,
          "x":0,
          "y":0

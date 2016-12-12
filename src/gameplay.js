@@ -80,16 +80,12 @@ const inventory = [
   }
 ]
 
-function lookOutWindow () {
-  this.store.ChoosePathString('look_out_window')
-  this.continueStory().then(() => this.youDie())
-}
-
 function talkToMirror () {
   if (!this.story.variablesState.$('mirror_alive')) {
     this.story.ChoosePathString('first_mirror')
     this.continueStory()
   } else {
+    this.game.add.tween(this.mirrorGirl).to({ alpha: 0.5 }, 800, 'Linear', true)
     this.story.ChoosePathString('long_argument')
     this.continueStory().then(() => {
       if (this.story.variablesState.$('win')) {
@@ -138,6 +134,7 @@ export default class GamePlay {
     this.game.load.image('HandButton', 'assets/handButton.png')
     this.game.load.image('LadyArms', 'assets/arms.png')
     this.game.load.image('Scarf', 'assets/scarfWall.png')
+    this.game.load.image('CutOutMirrorGirl', 'assets/CutOutMirrorGirl.png')
 
     this.game.load.image('GameOverWin', 'assets/gameover_win.png')
     this.game.load.image('GameOverDie', 'assets/gameover_die.png')
@@ -175,6 +172,10 @@ export default class GamePlay {
         lady.scale.setTo(0.75, 0.75)
         lady.animations.add('blink', Phaser.Animation.generateFrameNames('LadyHead', 1, 4, '', 3), 10, false, false)
         this.game.time.events.loop(Phaser.Timer.SECOND * 3, () => lady.animations.play('blink'), this)
+      } else if (layer.name === 'CutOutMirrorGirl') {
+        this.mirrorGirl = this.game.add.sprite(x, y, layer.name)
+        this.mirrorGirl.scale.setTo(0.75, 0.75)
+        this.mirrorGirl.alpha = 0.0
       } else {
         const sprite = this.game.add.sprite(x, y, layer.name)
         sprite.scale.setTo(0.75, 0.75)
@@ -297,7 +298,7 @@ export default class GamePlay {
     if (newMode === 'TALKING') {
       this.hoverText.visible = false
       this.speechText.visible = true
-      hideMouseCursor()
+      showMouseCursor()
     } else if (newMode === 'OBSERVE') {
       this.hoverText.visible = true
       this.speechText.visible = false
@@ -452,9 +453,9 @@ export default class GamePlay {
       choiceText.inputEnabled = true
 
       // Highlight text on hover
-      choiceText.stroke = '#000000'
+      choiceText.stroke = '#0099FF'
       choiceText.strokeThickness = 4
-      choiceText.events.onInputOut.add(() => { choiceText.stroke = '#000000' })
+      choiceText.events.onInputOut.add(() => { choiceText.stroke = '#0099FF' })
       choiceText.events.onInputOver.add(() => { choiceText.stroke = '#de77ae' })
 
       // Click on choice

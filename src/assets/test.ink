@@ -35,7 +35,7 @@ Mirror: "You have to be joking."
 * "I can't stay here any longer, I'm going mad[!"]! The reflection you show me is but a shadow of the world that I long for. I must go to it." 
     The mirror cackles.
     Mirror: "Well have at it, my dear. By all means. The swiftest river could not carry you to Camelot in time, not before the curse takes you by the neck. But please do see for yourself." -> mirror_encountered
-* {!mirror_cracked} "I'll smash you into a million pieces[!"]
+* {!mirror_cracked} "I'll smash you into a million pieces[!"]!"
     Mirror: "Be my guest" -> mirror_encountered
     // crooned the mirror
 
@@ -120,16 +120,14 @@ Mirror: Well, uh, I, I mean like you said, it's not really known.  But something
 Lady: I'll die?
 { mirror_cracked:
     ~ win = true 
-    How can I be stopped when I can't even see myself anymore? -> end_poem
+    How can I be stopped when I can't even see myself anymore?
+    -> end_poem
 - else:
     Mirror: You will die, the world will collapse, mayhem will ensue!
     Lady: Well maybe thats a risk I'm willing to take.  Maybe I don't care! -> END
 }
 
 === end_poem ===
-// Spaces are a hack to get this poem on own screen. Should fixup later
-
-
 She left the web, she left the loom 
 She made three paces thro' the room 
 She saw the water-flower bloom, 
