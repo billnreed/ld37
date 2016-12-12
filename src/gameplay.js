@@ -112,7 +112,8 @@ export default class GamePlay {
     this.game.load.image('Book', 'assets/book.png')
     this.game.load.image('Lady', 'assets/Lady.png')
     this.game.load.image('Yarn', 'assets/yarn.png')
-    this.game.load.image('CursorButtons', 'assets/yarn.png')
+    this.game.load.image('EyeButton', 'assets/eyeButton.png')
+    this.game.load.image('HandButton', 'assets/handButton.png')
     this.game.load.image('LadyArms', 'assets/arms.png')
     this.game.load.image('Scarf', 'assets/scarfWall.png')
     this.game.load.image('ScarfInv', 'assets/scarfinv.png')
@@ -370,8 +371,24 @@ export default class GamePlay {
   }
 
   setupCursorButtons () {
-    this.game.add.button(this.game.world.width - 95, this.game.world.height - 100, 'CursorButtons', () => this.switchMode('INTERACT'), this, 2, 1, 0)
-    // this.game.add.button(this.game.world.width - 200, this.game.world.height - 100, 'CursorButtons', () => this.switchMode('OBSERVE'), this, 2, 1, 0)
+    const handButton = this.game.add.button(this.game.world.width - 95, this.game.world.height - 85, 'HandButton', this.handButtonHandler, this, 0, 0, 0)
+    handButton.scale.setTo(0.25, 0.25)
+    const eyeButton = this.game.add.button(this.game.world.width - 200, this.game.world.height - 85, 'EyeButton', this.eyeButtonHandler, this, 0, 0, 0)
+    eyeButton.scale.setTo(0.25, 0.25)
+  }
+
+  handButtonHandler () {
+    // Don't let the user interact with these buttons when they are in talking or dialogue modes
+    if (this.mode !== 'OBSERVE') return
+
+    this.switchMode('INTERACT')
+  }
+
+  eyeButtonHandler () {
+    // Don't let the user interact with these buttons when they are in talking or dialogue modes
+    if (this.mode !== 'INTERACT') return
+
+    this.switchMode('OBSERVE')
   }
 
   setupInventory () {
