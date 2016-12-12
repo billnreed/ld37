@@ -1,37 +1,46 @@
-=== first_mirror ===
-You feel taunted by the mirror.
-* [Yell at it] -> yell_mirror
-* [Throw something] -> crack_mirror
-* [Ignore] -> weave
+VAR mirror_cracked = false
+VAR have_book = false
+VAR mirror_alive = false
+VAR win = false
 
-=== yell_mirror ===
-The mirror laughs at your feeble attempts.
--> END
+=== first_mirror ===
+The hairs on your neck prickle. You aren't alone.
+* [Joke with your reflection] -> short_argument
+* [Throw something] -> crack_mirror
++ [Ignore] -> END
 
 === crack_mirror ===
-The mirror cracks, the curse has been lifted. You win.
--> END
-
-=== weave ===
-You weave for the rest of your days, until your demise.
--> END
+{ have_book:
+    ~ mirror_cracked = true
+    <>You threw a book and cracked your mirror. Now how are you going to weave?
+- else:
+    <>You threw some yarn and it bounced off the mirror.
+} -> END
 
 === scarf_with_lantern ===
 The Lady draped her scarf over the lantern.
 It was soon engulfed in flames.
-She would weave no more.
--> END
+She would weave no more. -> END
 
 === book_with_mirror ===
-Mirror: "I've already read all of that!"
--> END
+Mirror: "I've already read all of that!" -> END
 
 === short_argument ===
+~ mirror_alive = true
 Lady: "Mirror mirror on the wall..."
 Mirror: "You have to be joking."
-* "Why must you keep me here[?"] asked the lady. Mirror: "A flame is best kept in a lantern far out of reach, where its radiant heat cannot scorch trembling hands." -> END
-* "I can't stay here any longer, I'm going mad[!"]! The reflection you show me is but a shadow of the world that I long for. I must go to it." The mirror cackled, "Well have at it, my dear. By all means. The swiftest river could not carry you to Camelot in time, not before the curse takes you by the neck. But please do see for yourself." -> END
-* "I'll smash you into a million pieces[!"], shouted the lady. "Be my guest," crooned the mirror. " -> END
+* "Why must you keep me here[?]?"
+   Mirror: "A flame is best kept in a lantern far out of reach, where its radiant heat cannot scorch trembling hands." -> mirror_encountered
+* "I can't stay here any longer, I'm going mad[!"]! The reflection you show me is but a shadow of the world that I long for. I must go to it." 
+    The mirror cackles.
+    Mirror: "Well have at it, my dear. By all means. The swiftest river could not carry you to Camelot in time, not before the curse takes you by the neck. But please do see for yourself." -> mirror_encountered
+* {!mirror_cracked} "I'll smash you into a million pieces[!"]
+    Mirror: "Be my guest" -> mirror_encountered
+    // crooned the mirror
+
+=== mirror_encountered ===
+~ mirror_alive = true
+-> END
 
 === long_argument ===
 Lady: I'm really tired of weaving all day long.  I think I'm getting carpel tunnel syndrome.  
@@ -98,27 +107,27 @@ Lady: Sigh... Okay... "I am one with the universe...."
 Mirror: Thats better, don't worry, we'll endure this life in perpetuity together.  It's gonna be great!.  
 Lady: But I don't want to endure this!  I want to get out!
 Mirror: Well you can't, if you do you'll die! I think....
-Lady: I'll die?  Or you'll die?
 -> continue2
 
 === dont_need_you ===
 Mirror: Oh, you don't need me?  Do you have any idea what would happen to you without me?
 Lady: No, what?  What?  What would happen to me?  Do you even know? 
 Mirror: Well, uh, I, I mean like you said, it's not really known.  But something really bad.  You'll probably die.
-Lady: I'll die?  Or you'll die?
 -> continue2
 
 === continue2 ===
-Mirror: You will die, the world will collapse, mayhem will ensue!
-
-Lady: Well maybe thats a risk I'm willing to take.  Maybe I don't care!
-
-Mirror: Noooo!
-
-Lady: Be silent -> END
+Lady: I'll die?
+{ mirror_cracked:
+    ~ win = true 
+    How can I be stopped when I can't even see myself anymore? -> end_poem
+- else:
+    Mirror: You will die, the world will collapse, mayhem will ensue!
+    Lady: Well maybe thats a risk I'm willing to take.  Maybe I don't care! -> END
+}
 
 === end_poem ===
-Narrator: 
+// Spaces are a hack to get this poem on own screen. Should fixup later
+
 
 She left the web, she left the loom 
 She made three paces thro' the room 

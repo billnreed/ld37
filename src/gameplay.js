@@ -60,7 +60,10 @@ const inventory = [
     used: false,
     key: 'Scarf',
     usedWith: {
-      'Lantern': scarfWithLantern
+      'Lantern': {
+        callback: scarfWithLantern,
+        consumed: true
+      }
     }
   },
   {
@@ -69,7 +72,10 @@ const inventory = [
     used: false,
     key: 'Book',
     usedWith: {
-      'Mirror': bookWithMirror
+      'Mirror': {
+        callback: bookWithMirror,
+        consumed: false
+      }
     }
   }
 ]
@@ -80,10 +86,19 @@ function lookOutWindow () {
 }
 
 function talkToMirror () {
-  this.story.ChoosePathString('long_argument')
-  this.continueStory().then(() => {
-    this.youWin()
-  })
+  if (!this.story.variablesState.$('mirror_alive')) {
+    this.story.ChoosePathString('first_mirror')
+    this.continueStory()
+  } else {
+    this.story.ChoosePathString('long_argument')
+    this.continueStory().then(() => {
+      if (this.story.variablesState.$('win')) {
+        this.youWin()
+      } else {
+        this.youDie()
+      }
+    })
+  }
 }
 
 function scarfWithLantern () {
@@ -578,9 +593,11 @@ export default class GamePlay {
     }
 
     const action = this.heldItem.usedWith[targetName]
-    if (action) {
-      action.call(this)
-      this.heldItem.used = true
+    if (action.callback) {
+      action.callback.call(this)
+      if (action.consumed) {
+        this.heldItem.used = true
+      }
 
       // Release item from mouse cursor
       releaseItem()
@@ -604,6 +621,11 @@ export default class GamePlay {
       if (observe[name] && observe[name].sprite) {
         observe[name].sprite.destroy()
         observe[name].hotspot.destroy()
+      }
+
+      // TODO: Generalize this logic
+      if (name === 'Book') {
+        this.story.variablesState.$('have_book', true)
       }
 
       this.pickupItemSound.play()
