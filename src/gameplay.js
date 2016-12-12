@@ -22,7 +22,7 @@ const observe = {
   },
   'Mirror': {
     count: 0,
-    text: ['My only respite from this weary room.']
+    text: ['My only respite from this weary room.', talkToMirror]
   },
   'Tassel': {
     count: 0,
@@ -48,6 +48,11 @@ const observe = {
     count: 0,
     text: ['A hook to hang a scarf on. What more could one ask for?']
   }
+}
+
+function talkToMirror () {
+  this.story.ChoosePathString('first_mirror')
+  this.continueStory()
 }
 
 function getObserveText (key) {
@@ -79,8 +84,9 @@ export default class GamePlay {
     this.game.load.json('map', 'assets/map.json')
     this.game.load.audio('hungry', 'assets/hungry.wav')
     this.game.load.audio('hair', 'assets/hair.wav')
+    this.game.load.audio('music', 'assets/Star Commander1.wav')
 
-    this.game.load.json('story', 'assets/story.json')
+    this.game.load.json('story', 'assets/test.json')
 
     loadMouseCursor.call(this)
   }
@@ -88,6 +94,9 @@ export default class GamePlay {
   create () {
     observeSounds['Pizza'] = this.game.add.audio('hungry')
     observeSounds['Hair'] = this.game.add.audio('hair')
+
+    // Background music
+    this.game.add.audio('music').loopFull()
 
     const map = this.game.cache.getJSON('map')
 
@@ -137,16 +146,30 @@ export default class GamePlay {
       sprite.inputEnabled = true
       sprite.input.pixelPerfectOver = true
       sprite.events.onInputOver.add(() => {
+        // Don't let the user touch objects when dialogue is present
+        if (this.mode !== 'INTERACT') return
+
         this.hoverText.text = spot.name
         setMouseCursorState('highlight')
       })
       sprite.events.onInputOut.add(() => {
+        // Don't let the user touch objects when dialogue is present
+        if (this.mode !== 'INTERACT') return
+
         this.hoverText.text = ''
         setMouseCursorState('neutral')
       })
       sprite.events.onInputDown.add(() => {
-        this.say(getObserveText(spot.name))
-        if (observeSounds[spot.name]) observeSounds[spot.name].play()
+        // Don't let the user touch objects when dialogue is present
+        if (this.mode !== 'INTERACT') return
+
+        const text = getObserveText(spot.name)
+        if (typeof text === 'function') {
+          text.call(this)
+        } else {
+          this.say(text)
+          if (observeSounds[spot.name]) observeSounds[spot.name].play()
+        }
       })
     })
 
@@ -176,7 +199,6 @@ export default class GamePlay {
     this.mainText.strokeThickness = 4
 
     this.story = new inkjs.Story(this.game.cache.getJSON('story'))
-    this.continueStory()
 
     createMouseCursor.call(this)
   }
@@ -186,6 +208,7 @@ export default class GamePlay {
   }
 
   switchMode (newMode) {
+    if (this.mode === newMode) return
     if (newMode === 'TALKING') {
       this.hoverText.visible = false
       this.speechText.visible = true
@@ -194,7 +217,13 @@ export default class GamePlay {
       this.hoverText.visible = true
       this.speechText.visible = false
       showMouseCursor()
+    } else if (newMode === 'DIALOGUE') {
+      this.hoverText.visible = false
+      this.speechText.visible = false
+      showMouseCursor()
     }
+
+    this.mode = newMode
   }
 
   say (text) {
@@ -202,10 +231,14 @@ export default class GamePlay {
     this.switchMode('TALKING')
     this.speechText.text = text
 
-    this.game.time.events.add(Phaser.Timer.SECOND * 3, () => this.switchMode(oldMode), this)
+    // Scale delay by the length of the text
+    const delay = Phaser.Timer.SECOND * text.length * 0.05
+    this.game.time.events.add(delay, () => this.switchMode(oldMode), this)
   }
 
   continueStory () {
+    this.switchMode('DIALOGUE')
+
     this.mainText.text = ''
     this.mainText.alpha = 0.1
 
@@ -224,6 +257,20 @@ export default class GamePlay {
   }
 
   presentChoices () {
+    // At end of dialogue, switch back to regular interaction
+    if (this.story.currentChoices.length === 0) {
+      this.game.time.events.add(Phaser.Timer.SECOND, () => {
+        // Fade out text
+        this.game.add.tween(this.mainText).to({ alpha: 0.0 }, 500, 'Linear', true)
+                      .onComplete.add(() => {
+                        this.mainText.text = ''
+                        this.mainText.alpha = 0.0
+                      })
+        this.switchMode('INTERACT')
+      })
+      return
+    }
+
     const choicesText = []
     this.story.currentChoices.forEach((choice, i) => {
       const choiceText = this.game.add.text(0, i * 30 + (this.mainText.y + this.mainText.height + 20), choice.text, { fill: '#ffffff' }, this.dialogueGroup)
