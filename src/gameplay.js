@@ -73,7 +73,9 @@ const inventory = [
 
 function talkToMirror () {
   this.story.ChoosePathString('long_argument')
-  this.continueStory()
+  this.continueStory().then(() => {
+    this.youWin()
+  })
 }
 
 function scarfWithLantern () {
@@ -309,14 +311,7 @@ export default class GamePlay {
     this.mainText.text = ''
     this.mainText.alpha = 0.0
 
-    return this.writeDialogue().then(() => {
-      // Present choices after a short delay
-      return new Promise((resolve, reject) => {
-        this.game.time.events.add(Phaser.Timer.QUARTER, () => {
-          resolve(this.presentChoices())
-        }, this)
-      })
-    })
+    return this.writeDialogue().then(() => this.presentChoices())
   }
 
   writeDialogue () {
@@ -396,7 +391,7 @@ export default class GamePlay {
     }
 
     const choicesText = []
-    this.story.currentChoices.forEach((choice, i) => {
+    const choicePromises = this.story.currentChoices.map((choice, i) => {
       const choiceText = this.game.add.text(140, i * 30 + (this.mainText.y + this.mainText.height + 20), choice.text, { fill: '#ffffff' }, this.dialogueGroup)
       choicesText.push(choiceText)
       choiceText.inputEnabled = true
@@ -408,23 +403,27 @@ export default class GamePlay {
       choiceText.events.onInputOver.add(() => { choiceText.stroke = '#de77ae' })
 
       // Click on choice
-      choiceText.events.onInputDown.add(() => {
-        // Remove all existing choices
-        choicesText.forEach(text => text.destroy())
+      return new Promise((resolve, reject) => {
+        choiceText.events.onInputDown.add(() => {
+          // Remove all existing choices
+          choicesText.forEach(text => text.destroy())
 
-        // Tell the story where to go next
-        this.story.ChooseChoiceIndex(choice.index)
+          // Tell the story where to go next
+          this.story.ChooseChoiceIndex(choice.index)
 
-        // Aaand loop
-        this.continueStory()
-      }, this)
+          // Aaand loop
+          resolve(this.continueStory())
+        }, this)
+      })
     })
 
     // Fade in choices
     choicesText.forEach(text => {
       text.alpha = 0.1
-      this.game.add.tween(text).to({ alpha: 1 }, 1000, 'Linear', true)
+      this.game.add.tween(text).to({ alpha: 1 }, 500, 'Linear', true)
     })
+
+    return Promise.race(choicePromises)
   }
 
   setupCursorButtons () {
@@ -497,9 +496,6 @@ export default class GamePlay {
       sprite.events.onInputDown.add(() => {
         this.holdItem(item)
       })
-
-      // Limit drop location to only the 2 columns.
-      // sprite.events.onDragStop.add(fixLocation)
 
       sprite.visible = item.acquired
 
@@ -585,6 +581,13 @@ export default class GamePlay {
   }
 
   youWin () {
+    // Switch to dialogue so user can't interact with environment anymore
+    this.switchMode('DIALOGUE')
 
+    const image = this.game.cache.getImage('GameOverWin')
+    const gameOver = this.game.add.image(this.game.width / 2 - image.width / 2, this.game.height / 2 - image.height / 2, 'GameOverWin')
+
+    // Add to group to ensure mouse cursor can go over it
+    this.dialogueGroup.add(gameOver)
   }
 }
