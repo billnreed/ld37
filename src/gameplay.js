@@ -340,6 +340,7 @@ export default class GamePlay {
 
                           resolve()
                         })
+
           this.switchMode('OBSERVE')
 
           // Remove handler

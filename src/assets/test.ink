@@ -77,7 +77,7 @@ Mirror: Fine, but I think you'd feel better if you tried harder! -> tried_harder
 Mirror: Fine, but I think you'd feel better if you tried harder -> tried_harder_q
 
 === tried_harder_q ===
-* [Tried harder?] -> tried_harder
++ [Tried harder?] -> tried_harder
 
 === tried_harder ===
 Lady: Tried harder?  Tried harder!!??
@@ -113,8 +113,7 @@ Lady: Well maybe thats a risk I'm willing to take.  Maybe I don't care!
 
 Mirror: Noooo!
 
-Lady: Be silent
- -> END
+Lady: Be silent -> END
 
 === end_poem ===
 Narrator: 
