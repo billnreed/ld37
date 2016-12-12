@@ -97,8 +97,6 @@ function getObserveText (key) {
   return text
 }
 
-const observeSounds = {}
-
 export default class GamePlay {
   constructor (game) {
     this.game = game
@@ -122,9 +120,9 @@ export default class GamePlay {
 
     this.game.load.atlasJSONHash('LadyHead', 'assets/ladyblink.png', 'assets/ladyblink.json')
     this.game.load.json('map', 'assets/map.json')
-    this.game.load.audio('hungry', 'assets/hungry.wav')
-    this.game.load.audio('hair', 'assets/hair.wav')
     this.game.load.audio('music', 'assets/Star Commander1.wav')
+    this.game.load.audio('ClickButton', 'assets/clickButton.wav')
+    this.game.load.audio('PickupItem', 'assets/pickupItem.wav')
 
     this.game.load.json('story', 'assets/test.json')
 
@@ -132,11 +130,12 @@ export default class GamePlay {
   }
 
   create () {
-    observeSounds['Pizza'] = this.game.add.audio('hungry')
-    observeSounds['Hair'] = this.game.add.audio('hair')
-
     // Background music
     this.game.add.audio('music').loopFull()
+
+    // Sound effects
+    this.clickButtonSound = this.game.add.audio('ClickButton')
+    this.pickupItemSound = this.game.add.audio('PickupItem')
 
     const map = this.game.cache.getJSON('map')
 
@@ -216,7 +215,6 @@ export default class GamePlay {
             text.call(this)
           } else {
             this.say(text)
-            if (observeSounds[spot.name]) observeSounds[spot.name].play()
           }
         } else if (this.mode === 'INTERACT') {
           if (this.heldItem) {
@@ -389,6 +387,7 @@ export default class GamePlay {
     // Don't let the user interact with these buttons when they are in talking or dialogue modes
     if (this.mode !== 'OBSERVE') return
 
+    this.clickButtonSound.play()
     this.switchMode('INTERACT')
   }
 
@@ -396,6 +395,7 @@ export default class GamePlay {
     // Don't let the user interact with these buttons when they are in talking or dialogue modes
     if (this.mode !== 'INTERACT') return
 
+    this.clickButtonSound.play()
     this.switchMode('OBSERVE')
   }
 
@@ -420,6 +420,8 @@ export default class GamePlay {
         this.game.add.tween(gradient).to({ x: 0 }, 200, Phaser.Easing.Cubic.In, true)
         gradient.isOpen = true
       }
+
+      this.clickButtonSound.play()
     }, this, 2, 1, 0)
 
     basket.scale.setTo(0.5, 0.5)
@@ -506,6 +508,8 @@ export default class GamePlay {
         observe[name].hotspot.destroy()
       }
 
+      this.pickupItemSound.play()
+
       item.acquired = true
       this.resetInventoryVisibility()
     } else {
@@ -514,8 +518,12 @@ export default class GamePlay {
   }
 
   youDie () {
+    // Switch to dialogue so user can't interact with environment anymore
+    this.switchMode('DIALOGUE')
+
     const image = this.game.cache.getImage('GameOverDie')
     const gameOver = this.game.add.image(this.game.width / 2 - image.width / 2, this.game.height / 2 - image.height / 2, 'GameOverDie')
+    
     // Add to group to ensure mouse cursor can go over it
     this.dialogueGroup.add(gameOver)
   }

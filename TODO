@@ -3,7 +3,7 @@ Button click sound effect
 Make the last text in a conversation stop until you click on it
 Make user click through each paragraph of text up until character name
 Displace inventory items by item height
-Add ending screens
+Add win screen
 Add Lady in mirror
 Make items do something tricky to win?
 Make last line of speech crack mirror
@@ -12,6 +12,7 @@ Sound effect for taking scarf
 Sound effect for scarf on fire
 Text typing sound effect (murmer branch)
 Better yarn
+Can still interact on gameover screen
 
 Future:
 Movement of arms
