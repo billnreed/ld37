@@ -320,6 +320,7 @@ export default class GamePlay {
   }
 
   writeDialogue () {
+    const sectionsPerPage = 4
     const sections = []
 
     // Generate story text - loop through available content
@@ -332,8 +333,13 @@ export default class GamePlay {
     }
 
     let sectionIndex = 0
+
+    // Tracks the number of sections that appear on screen at once
+    let sectionCounter = 0
+
     // Display first section of text
     if (sections.length > 0) {
+      ++sectionCounter
       this.mainText.text = sections[sectionIndex]
       this.game.add.tween(this.mainText).to({ alpha: 1 }, 1000, 'Linear', true)
     }
@@ -342,7 +348,16 @@ export default class GamePlay {
     return new Promise((resolve, reject) => {
       const onDownHandler = () => {
         ++sectionIndex
+
         if (sectionIndex < sections.length) {
+          ++sectionCounter
+
+          // Reset the displayed text once we've hit the onscreen section limit
+          if (sectionCounter >= sectionsPerPage - 1) {
+            this.mainText.text = ''
+            sectionCounter = 0
+          }
+
           this.mainText.text += sections[sectionIndex]
         } else {
           // We hit the last section

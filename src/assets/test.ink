@@ -98,13 +98,15 @@ Lady: Sigh... Okay... "I am one with the universe...."
 Mirror: Thats better, don't worry, we'll endure this life in perpetuity together.  It's gonna be great!.  
 Lady: But I don't want to endure this!  I want to get out!
 Mirror: Well you can't, if you do you'll die! I think....
-Lady: I'll die?  Or you'll die? -> continue2
+Lady: I'll die?  Or you'll die?
+-> continue2
 
 === dont_need_you ===
 Mirror: Oh, you don't need me?  Do you have any idea what would happen to you without me?
 Lady: No, what?  What?  What would happen to me?  Do you even know? 
 Mirror: Well, uh, I, I mean like you said, it's not really known.  But something really bad.  You'll probably die.
-Lady: I'll die?  Or you'll die? -> continue2
+Lady: I'll die?  Or you'll die?
+-> continue2
 
 === continue2 ===
 Mirror: You will die, the world will collapse, mayhem will ensue!
