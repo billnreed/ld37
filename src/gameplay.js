@@ -78,8 +78,7 @@ function talkToMirror () {
 
 function scarfWithLantern () {
   this.story.ChoosePathString('scarf_with_lantern')
-  this.continueStory()
-  // GAME OVER
+  this.continueStory().then(() => this.youDie())
 }
 
 function bookWithMirror () {
@@ -117,6 +116,9 @@ export default class GamePlay {
     this.game.load.image('LadyArms', 'assets/arms.png')
     this.game.load.image('Scarf', 'assets/scarfWall.png')
     this.game.load.image('ScarfInv', 'assets/scarfinv.png')
+
+    this.game.load.image('GameOverWin', 'assets/gameover_win.png')
+    this.game.load.image('GameOverDie', 'assets/gameover_die.png')
 
     this.game.load.atlasJSONHash('LadyHead', 'assets/ladyblink.png', 'assets/ladyblink.json')
     this.game.load.json('map', 'assets/map.json')
@@ -320,22 +322,28 @@ export default class GamePlay {
     this.game.add.tween(this.mainText).to({ alpha: 1 }, 1000, 'Linear', true)
 
     // Present choices after a short delay
-    this.game.time.events.add(Phaser.Timer.HALF, this.presentChoices, this)
+    return new Promise((resolve, reject) => {
+      this.game.time.events.add(Phaser.Timer.HALF, () => {
+        resolve(this.presentChoices())
+      }, this)
+    })
   }
 
   presentChoices () {
     // At end of dialogue, switch back to regular OBSERVEion
     if (this.story.currentChoices.length === 0) {
-      this.game.time.events.add(Phaser.Timer.SECOND, () => {
-        // Fade out text
-        this.game.add.tween(this.mainText).to({ alpha: 0.0 }, 500, 'Linear', true)
-                      .onComplete.add(() => {
-                        this.mainText.text = ''
-                        this.mainText.alpha = 0.0
-                      })
-        this.switchMode('OBSERVE')
+      return new Promise((resolve, reject) => {
+        this.game.time.events.add(Phaser.Timer.SECOND, () => {
+          // Fade out text
+          this.game.add.tween(this.mainText).to({ alpha: 0.0 }, 500, 'Linear', true)
+                        .onComplete.add(() => {
+                          this.mainText.text = ''
+                          this.mainText.alpha = 0.0
+                          resolve()
+                        })
+          this.switchMode('OBSERVE')
+        })
       })
-      return
     }
 
     const choicesText = []
@@ -503,5 +511,16 @@ export default class GamePlay {
     } else {
       console.log(`Can't grab item ${name}`)
     }
+  }
+
+  youDie () {
+    const image = this.game.cache.getImage('GameOverDie')
+    const gameOver = this.game.add.image(this.game.width / 2 - image.width / 2, this.game.height / 2 - image.height / 2, 'GameOverDie')
+    // Add to group to ensure mouse cursor can go over it
+    this.dialogueGroup.add(gameOver)
+  }
+
+  youWin () {
+
   }
 }
