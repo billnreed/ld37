@@ -50,21 +50,40 @@ const observe = {
   }
 }
 
-const inventory = {
-  'Scarf': {
-    acquired: true,
+const inventory = [
+  {
+    name: 'Scarf',
+    acquired: false,
     used: false,
-    key: 'Yarn' //'ScarfInv'
+    key: 'Scarf',
+    usedWith: {
+      'Lantern': scarfWithLantern
+    }
   },
-  'Book': {
+  {
+    name: 'Book',
     acquired: true,
     used: false,
-    key: 'Book' //'ScarfInv'
+    key: 'Book',
+    usedWith: {
+      'Mirror': bookWithMirror
+    }
   }
-}
+]
 
 function talkToMirror () {
-  this.story.ChoosePathString('first_mirror')
+  this.story.ChoosePathString('long_argument')
+  this.continueStory()
+}
+
+function scarfWithLantern () {
+  this.story.ChoosePathString('scarf_with_lantern')
+  this.continueStory()
+  // GAME OVER
+}
+
+function bookWithMirror () {
+  this.story.ChoosePathString('book_with_mirror')
   this.continueStory()
 }
 
@@ -88,12 +107,14 @@ export default class GamePlay {
   }
 
   preload () {
+    this.game.load.image('Basket', 'assets/basket.png')
     this.game.load.image('Background', 'assets/background.png')
     this.game.load.image('Book', 'assets/book.png')
     this.game.load.image('Lady', 'assets/Lady.png')
     this.game.load.image('Yarn', 'assets/yarn.png')
     this.game.load.image('CursorButtons', 'assets/yarn.png')
     this.game.load.image('LadyArms', 'assets/arms.png')
+    this.game.load.image('Scarf', 'assets/scarfWall.png')
     this.game.load.image('ScarfInv', 'assets/scarfinv.png')
 
     this.game.load.atlasJSONHash('LadyHead', 'assets/ladyblink.png', 'assets/ladyblink.json')
@@ -127,8 +148,13 @@ export default class GamePlay {
         lady.animations.add('blink', Phaser.Animation.generateFrameNames('LadyHead', 1, 4, '', 3), 10, false, false)
         this.game.time.events.loop(Phaser.Timer.SECOND * 3, () => lady.animations.play('blink'), this)
       } else {
-        const image = this.game.add.image(x, y, layer.name)
-        image.scale.setTo(0.75, 0.75)
+        const sprite = this.game.add.sprite(x, y, layer.name)
+        sprite.scale.setTo(0.75, 0.75)
+
+        // Give observe object a reference back to its visualization
+        if (observe[layer.name]) {
+          observe[layer.name].sprite = sprite
+        }
       }
     })
 
@@ -165,7 +191,12 @@ export default class GamePlay {
         // Don't let the user touch objects when dialogue is present
         if (!(this.mode === 'OBSERVE' || this.mode === 'INTERACT')) return
 
-        this.hoverText.text = spot.name
+        if (this.mode === 'INTERACT' && this.heldItem) {
+          this.hoverText.text = `Use ${this.heldItem.name} with ${spot.name}`
+        } else {
+          this.hoverText.text = spot.name
+        }
+
         setMouseCursorState('highlight')
       })
       sprite.events.onInputOut.add(() => {
@@ -185,11 +216,20 @@ export default class GamePlay {
             if (observeSounds[spot.name]) observeSounds[spot.name].play()
           }
         } else if (this.mode === 'INTERACT') {
-          tryGetItem(spot.name)
+          if (this.heldItem) {
+            this.tryUseItem(spot.name)
+          } else {
+            this.tryGetItem(spot.name)
+          }
         } else {
           // Don't let the user touch objects when dialogue is present
         }
       })
+
+      // Give the observe object a reference back to its hotspot
+      if (observe[spot.name]) {
+        observe[spot.name].hotspot = sprite
+      }
     })
 
     this.hoverText = this.game.add.text(this.game.width / 2, this.game.height - 50, '', { fill: '#ffffff' })
@@ -213,7 +253,7 @@ export default class GamePlay {
     myBitmap.context.fillRect(0, 0, this.game.width, 250)
     // const gradient = this.game.add.sprite(0, 0, myBitmap)
     // this.dialogueGroup.add(gradient)
-    this.mainText = this.game.add.text(0, 0, '', { fill: '#ffffff' }, this.dialogueGroup)
+    this.mainText = this.game.add.text(140, 0, '', { fill: '#ffffff', wordWrap: true, wordWrapWidth: 800 }, this.dialogueGroup)
     this.mainText.stroke = '#000000'
     this.mainText.strokeThickness = 4
 
@@ -266,7 +306,7 @@ export default class GamePlay {
     this.switchMode('DIALOGUE')
 
     this.mainText.text = ''
-    this.mainText.alpha = 0.1
+    this.mainText.alpha = 0.0
 
     // Generate story text - loop through available content
     while (this.story.canContinue) {
@@ -299,7 +339,7 @@ export default class GamePlay {
 
     const choicesText = []
     this.story.currentChoices.forEach((choice, i) => {
-      const choiceText = this.game.add.text(0, i * 30 + (this.mainText.y + this.mainText.height + 20), choice.text, { fill: '#ffffff' }, this.dialogueGroup)
+      const choiceText = this.game.add.text(140, i * 30 + (this.mainText.y + this.mainText.height + 20), choice.text, { fill: '#ffffff' }, this.dialogueGroup)
       choicesText.push(choiceText)
       choiceText.inputEnabled = true
 
@@ -331,24 +371,25 @@ export default class GamePlay {
 
   setupCursorButtons () {
     this.game.add.button(this.game.world.width - 95, this.game.world.height - 100, 'CursorButtons', () => this.switchMode('INTERACT'), this, 2, 1, 0)
-    //this.game.add.button(this.game.world.width - 200, this.game.world.height - 100, 'CursorButtons', () => this.switchMode('OBSERVE'), this, 2, 1, 0)
+    // this.game.add.button(this.game.world.width - 200, this.game.world.height - 100, 'CursorButtons', () => this.switchMode('OBSERVE'), this, 2, 1, 0)
   }
 
   setupInventory () {
-    const myBitmap = this.game.add.bitmapData(100, this.game.height)
-    const grd = myBitmap.context.createLinearGradient(0, 0, 100, 0)
+    const width = 130
+    const myBitmap = this.game.add.bitmapData(width, this.game.height)
+    const grd = myBitmap.context.createLinearGradient(0, 0, width, 0)
     grd.addColorStop(0, 'black')
     grd.addColorStop(1, 'rgba(31,0,0,0.2)')
     myBitmap.context.fillStyle = grd
-    myBitmap.context.fillRect(0, 0, 100, this.game.height)
+    myBitmap.context.fillRect(0, 0, width, this.game.height)
 
-    const gradient = this.game.add.sprite(-100, 0, myBitmap)
+    const gradient = this.game.add.sprite(-width, 0, myBitmap)
     gradient.isOpen = false
     this.dialogueGroup.add(gradient)
 
-    this.game.add.button(0, this.game.world.height - 100, 'CursorButtons', () => {
+    const basket = this.game.add.button(0, this.game.world.height - 120, 'Basket', () => {
       if (gradient.isOpen) {
-        this.game.add.tween(gradient).to({ x: -100 }, 200, Phaser.Easing.Cubic.In, true)
+        this.game.add.tween(gradient).to({ x: -width }, 200, Phaser.Easing.Cubic.In, true)
         gradient.isOpen = false
       } else {
         this.game.add.tween(gradient).to({ x: 0 }, 200, Phaser.Easing.Cubic.In, true)
@@ -356,14 +397,14 @@ export default class GamePlay {
       }
     }, this, 2, 1, 0)
 
+    basket.scale.setTo(0.5, 0.5)
+
     // Add items in inventory as children of the background gradient so they move relatively
     this.setupInventoryItems().forEach(sprite => gradient.addChild(sprite))
   }
 
   setupInventoryItems () {
-    return Object.keys(inventory).map((prop, i) => {
-      const item = inventory[prop]
-
+    return inventory.map((item, i) => {
       // Directly create sprites on the left group.
       const sprite = this.game.add.sprite(0, 0 * i, item.key, i)
 
@@ -384,13 +425,14 @@ export default class GamePlay {
   }
 
   resetInventoryVisibility () {
-    return Object.keys(inventory).map((prop, i) => {
-      const item = inventory[prop]
-      item.sprite.visible = item.acquired
+    return inventory.map((item, i) => {
+      item.sprite.visible = item.acquired && !(item.used)
     })
   }
 
   holdItem (item) {
+    this.switchMode('INTERACT')
+
     if (this.heldItem) {
       // Reset visiblity on previously held item
       this.heldItem.sprite.visible = this.heldItem.acquired
@@ -400,5 +442,49 @@ export default class GamePlay {
     item.sprite.visible = false
 
     setHeldItem(this.heldItem)
+  }
+
+  tryUseItem (targetName) {
+    if (!this.heldItem) {
+      throw new Error(`Invalid state. No item is held`)
+    }
+    if (!this.heldItem.acquired) {
+      throw new Error(`Invalid state. Held item ${this.heldItem.name} isn't acquired`)
+    }
+
+    const action = this.heldItem.usedWith[targetName]
+    if (action) {
+      action.call(this)
+      this.heldItem.used = true
+
+      // Release item from mouse cursor
+      releaseItem()
+
+      this.heldItem = null
+
+      this.resetInventoryVisibility()
+    } else {
+      console.log(`Can't use with ${targetName}`)
+    }
+  }
+
+  tryGetItem (name) {
+    const item = inventory.find(item => item.name === name)
+    if (item) {
+      if (item.acquired) {
+        throw new Error(`Invalid state. Item ${name} already acquired`)
+      }
+
+      // Remove item from scene
+      if (observe[name] && observe[name].sprite) {
+        observe[name].sprite.destroy()
+        observe[name].hotspot.destroy()
+      }
+
+      item.acquired = true
+      this.resetInventoryVisibility()
+    } else {
+      console.log(`Can't grab item ${name}`)
+    }
   }
 }

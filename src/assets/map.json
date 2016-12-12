@@ -12,6 +12,19 @@
          "y":0
         }, 
         {
+         "height":100,
+         "image":"scarfWall.png",
+         "name":"Scarf",
+         "offsetx":565,
+         "offsety":173,
+         "opacity":1,
+         "type":"imagelayer",
+         "visible":true,
+         "width":80,
+         "x":0,
+         "y":0
+        }, 
+        {
          "height":0,
          "image":"Lady.png",
          "name":"Lady",
@@ -38,7 +51,7 @@
          "y":0
         }, 
         {
-         "height":100,
+         "height":0,
          "image":"book.png",
          "name":"Book",
          "offsetx":139,
@@ -46,12 +59,12 @@
          "opacity":1,
          "type":"imagelayer",
          "visible":true,
-         "width":80,
+         "width":0,
          "x":0,
          "y":0
         }, 
         {
-         "height":100,
+         "height":0,
          "image":"yarn.png",
          "name":"Yarn",
          "offsetx":992,
@@ -59,12 +72,12 @@
          "opacity":1,
          "type":"imagelayer",
          "visible":true,
-         "width":80,
+         "width":0,
          "x":0,
          "y":0
         }, 
         {
-         "height":100,
+         "height":0,
          "image":"arms.png",
          "name":"LadyArms",
          "offsetx":794,
@@ -72,7 +85,7 @@
          "opacity":1,
          "type":"imagelayer",
          "visible":true,
-         "width":80,
+         "width":0,
          "x":0,
          "y":0
         }, 
@@ -195,19 +208,19 @@
                  "y":475
                 }, 
                 {
-                 "height":341.488852711707,
+                 "height":341.489,
                  "id":19,
                  "name":"Loom",
                  "rotation":-45,
                  "type":"",
                  "visible":true,
-                 "width":95.9791847198288,
+                 "width":95.9792,
                  "x":863.5,
                  "y":666.5
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "width":0,
          "x":0,
          "y":0
