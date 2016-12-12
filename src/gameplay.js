@@ -42,11 +42,19 @@ const observe = {
   },
   'Scarf': {
     count: 0,
-    text: ["What do I need a scarf for? I can't even leave this room, let alone venture outside"]
+    text: ["What do I need a scarf for? I can't even leave this room, let alone venture outside"],
   },
   'Hook': {
     count: 0,
     text: ['A hook to hang a scarf on. What more could one ask for?']
+  }
+}
+
+const inventory = {
+  'Scarf': {
+    acquired: true,
+    used: false,
+    key: 'Yarn' //'ScarfInv'
   }
 }
 
@@ -71,7 +79,7 @@ const observeSounds = {}
 export default class GamePlay {
   constructor (game) {
     this.game = game
-    this.mode = 'INTERACT'
+    this.mode = 'OBSERVE'
   }
 
   preload () {
@@ -79,7 +87,10 @@ export default class GamePlay {
     this.game.load.image('Book', 'assets/book.png')
     this.game.load.image('Lady', 'assets/Lady.png')
     this.game.load.image('Yarn', 'assets/yarn.png')
+    this.game.load.image('CursorButtons', 'assets/yarn.png')
     this.game.load.image('LadyArms', 'assets/arms.png')
+    this.game.load.image('ScarfInv', 'assets/scarfinv.png')
+
     this.game.load.atlasJSONHash('LadyHead', 'assets/ladyblink.png', 'assets/ladyblink.json')
     this.game.load.json('map', 'assets/map.json')
     this.game.load.audio('hungry', 'assets/hungry.wav')
@@ -147,28 +158,31 @@ export default class GamePlay {
       sprite.input.pixelPerfectOver = true
       sprite.events.onInputOver.add(() => {
         // Don't let the user touch objects when dialogue is present
-        if (this.mode !== 'INTERACT') return
+        if (!(this.mode === 'OBSERVE' || this.mode === 'INTERACT')) return
 
         this.hoverText.text = spot.name
         setMouseCursorState('highlight')
       })
       sprite.events.onInputOut.add(() => {
         // Don't let the user touch objects when dialogue is present
-        if (this.mode !== 'INTERACT') return
+        if (!(this.mode === 'OBSERVE' || this.mode === 'INTERACT')) return
 
         this.hoverText.text = ''
         setMouseCursorState('neutral')
       })
       sprite.events.onInputDown.add(() => {
-        // Don't let the user touch objects when dialogue is present
-        if (this.mode !== 'INTERACT') return
-
-        const text = getObserveText(spot.name)
-        if (typeof text === 'function') {
-          text.call(this)
+        if (this.mode === 'OBSERVE') {
+          const text = getObserveText(spot.name)
+          if (typeof text === 'function') {
+            text.call(this)
+          } else {
+            this.say(text)
+            if (observeSounds[spot.name]) observeSounds[spot.name].play()
+          }
+        } else if (this.mode === 'INTERACT') {
+          tryGetItem(spot.name)
         } else {
-          this.say(text)
-          if (observeSounds[spot.name]) observeSounds[spot.name].play()
+          // Don't let the user touch objects when dialogue is present
         }
       })
     })
@@ -198,6 +212,9 @@ export default class GamePlay {
     this.mainText.stroke = '#000000'
     this.mainText.strokeThickness = 4
 
+    this.setupCursorButtons()
+    this.setupInventory()
+
     this.story = new inkjs.Story(this.game.cache.getJSON('story'))
 
     createMouseCursor.call(this)
@@ -213,6 +230,10 @@ export default class GamePlay {
       this.hoverText.visible = false
       this.speechText.visible = true
       hideMouseCursor()
+    } else if (newMode === 'OBSERVE') {
+      this.hoverText.visible = true
+      this.speechText.visible = false
+      showMouseCursor()
     } else if (newMode === 'INTERACT') {
       this.hoverText.visible = true
       this.speechText.visible = false
@@ -257,7 +278,7 @@ export default class GamePlay {
   }
 
   presentChoices () {
-    // At end of dialogue, switch back to regular interaction
+    // At end of dialogue, switch back to regular OBSERVEion
     if (this.story.currentChoices.length === 0) {
       this.game.time.events.add(Phaser.Timer.SECOND, () => {
         // Fade out text
@@ -266,7 +287,7 @@ export default class GamePlay {
                         this.mainText.text = ''
                         this.mainText.alpha = 0.0
                       })
-        this.switchMode('INTERACT')
+        this.switchMode('OBSERVE')
       })
       return
     }
@@ -300,6 +321,63 @@ export default class GamePlay {
     choicesText.forEach(text => {
       text.alpha = 0.1
       this.game.add.tween(text).to({ alpha: 1 }, 1000, 'Linear', true)
+    })
+  }
+
+  setupCursorButtons () {
+    this.game.add.button(this.game.world.width - 95, this.game.world.height - 100, 'CursorButtons', () => this.switchMode('INTERACT'), this, 2, 1, 0)
+    //this.game.add.button(this.game.world.width - 200, this.game.world.height - 100, 'CursorButtons', () => this.switchMode('OBSERVE'), this, 2, 1, 0)
+  }
+
+  setupInventory () {
+    const myBitmap = this.game.add.bitmapData(100, this.game.height)
+    const grd = myBitmap.context.createLinearGradient(0, 0, 100, 0)
+    grd.addColorStop(0, 'black')
+    grd.addColorStop(1, 'rgba(31,0,0,0.2)')
+    myBitmap.context.fillStyle = grd
+    myBitmap.context.fillRect(0, 0, 100, this.game.height)
+
+    const gradient = this.game.add.sprite(-100, 0, myBitmap)
+    gradient.isOpen = false
+    this.dialogueGroup.add(gradient)
+
+    this.game.add.button(0, this.game.world.height - 100, 'CursorButtons', () => {
+      if (gradient.isOpen) {
+        this.game.add.tween(gradient).to({ x: -100 }, 200, Phaser.Easing.Cubic.In, true)
+        gradient.isOpen = false
+      } else {
+        this.game.add.tween(gradient).to({ x: 0 }, 200, Phaser.Easing.Cubic.In, true)
+        gradient.isOpen = true
+      }
+    }, this, 2, 1, 0)
+
+    // Add items in inventory as children of the background gradient so they move relatively
+    this.setupInventoryItems().forEach(sprite => gradient.addChild(sprite))
+  }
+
+  setupInventoryItems () {
+    return Object.keys(inventory).map((prop, i) => {
+      const item = inventory[prop]
+
+      // Directly create sprites on the left group.
+      const sprite = this.game.add.sprite(0, 0 * i, item.key, i)
+
+      // Enable input detection, then it's possible be dragged.
+      sprite.inputEnabled = true
+
+      // Make this item draggable.
+      sprite.input.enableDrag()
+
+      // Then we make it snap to left and right side,
+      // also we make it only snap when released.
+      sprite.input.enableSnap(90, 90, false, true)
+
+      // Limit drop location to only the 2 columns.
+      // sprite.events.onDragStop.add(fixLocation)
+
+      sprite.visible = item.acquired
+
+      return sprite
     })
   }
 }
