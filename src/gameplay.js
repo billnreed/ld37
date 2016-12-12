@@ -309,21 +309,50 @@ export default class GamePlay {
     this.mainText.text = ''
     this.mainText.alpha = 0.0
 
+    return this.writeDialogue().then(() => {
+      // Present choices after a short delay
+      return new Promise((resolve, reject) => {
+        this.game.time.events.add(Phaser.Timer.QUARTER, () => {
+          resolve(this.presentChoices())
+        }, this)
+      })
+    })
+  }
+
+  writeDialogue () {
+    const sections = []
+
     // Generate story text - loop through available content
     while (this.story.canContinue) {
       // Get ink to generate the next paragraph
-      const paragraphText = this.story.Continue()
-      this.mainText.text += paragraphText
+      const line = this.story.Continue()
+
+      // I think each character has a single line of dialogue, don't need to split up by name
+      sections.push(line)
     }
 
-    // Fade in text
-    this.game.add.tween(this.mainText).to({ alpha: 1 }, 1000, 'Linear', true)
+    let sectionIndex = 0
+    // Display first section of text
+    if (sections.length > 0) {
+      this.mainText.text = sections[sectionIndex]
+      this.game.add.tween(this.mainText).to({ alpha: 1 }, 1000, 'Linear', true)
+    }
 
-    // Present choices after a short delay
+    // Loop through the rest of text. Resolve promise when there is no more
     return new Promise((resolve, reject) => {
-      this.game.time.events.add(Phaser.Timer.HALF, () => {
-        resolve(this.presentChoices())
-      }, this)
+      const onDownHandler = () => {
+        ++sectionIndex
+        if (sectionIndex < sections.length) {
+          this.mainText.text += sections[sectionIndex]
+        } else {
+          // We hit the last section
+          // Remove handler and resolve
+          this.game.input.mousePointer.leftButton.onDown.remove(onDownHandler, this)
+          resolve()
+        }
+      }
+
+      this.game.input.mousePointer.leftButton.onDown.add(onDownHandler, this)
     })
   }
 
