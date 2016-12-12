@@ -270,15 +270,12 @@ export default class GamePlay {
     this.mainText.strokeThickness = 4
 
     this.setupCursorButtons()
+    this.updateEyeAndHandVisibilty()
     this.setupInventory()
 
     this.story = new inkjs.Story(this.game.cache.getJSON('story'))
 
     createMouseCursor.call(this)
-  }
-
-  update () {
-
   }
 
   switchMode (newMode) {
@@ -302,6 +299,7 @@ export default class GamePlay {
     }
 
     this.mode = newMode
+    this.updateEyeAndHandVisibilty()
   }
 
   say (text) {
@@ -442,10 +440,19 @@ export default class GamePlay {
   }
 
   setupCursorButtons () {
-    const handButton = this.game.add.button(this.game.world.width - 95, this.game.world.height - 85, 'HandButton', this.handButtonHandler, this, 0, 0, 0)
-    handButton.scale.setTo(0.25, 0.25)
-    const eyeButton = this.game.add.button(this.game.world.width - 200, this.game.world.height - 85, 'EyeButton', this.eyeButtonHandler, this, 0, 0, 0)
-    eyeButton.scale.setTo(0.25, 0.25)
+    this.handButton = this.game.add.button(this.game.world.width - 95, this.game.world.height - 85, 'HandButton', this.handButtonHandler, this, 0, 0, 0)
+    this.handButton.scale.setTo(0.25, 0.25)
+    this.handButton.onInputOver.add(() => { this.handButton.alpha = 1.0 })
+    this.handButton.onInputOut.add(() => {
+      if (this.mode !== 'INTERACT') this.handButton.alpha = 0.5
+    })
+
+    this.eyeButton = this.game.add.button(this.game.world.width - 200, this.game.world.height - 85, 'EyeButton', this.eyeButtonHandler, this, 0, 0, 0)
+    this.eyeButton.scale.setTo(0.25, 0.25)
+    this.eyeButton.onInputOver.add(() => { this.eyeButton.alpha = 1.0 })
+    this.eyeButton.onInputOut.add(() => {
+      if (this.mode !== 'OBSERVE') this.eyeButton.alpha = 0.5
+    })
   }
 
   handButtonHandler () {
@@ -486,9 +493,15 @@ export default class GamePlay {
       }
 
       this.clickButtonSound.play()
-    }, this, 2, 1, 0)
+    }, this, 0, 0, 0)
+
+    basket.onInputOver.add(() => { basket.alpha = 1.0 })
+    basket.onInputOut.add(() => {
+      if (!gradient.isOpen) basket.alpha = 0.5
+    })
 
     basket.scale.setTo(0.5, 0.5)
+    basket.alpha = 0.5
 
     // Add items in inventory as children of the background gradient so they move relatively
     this.setupInventoryItems().forEach(sprite => gradient.addChild(sprite))
@@ -527,6 +540,19 @@ export default class GamePlay {
     return inventory.map((item, i) => {
       item.sprite.visible = item.acquired && !(item.used)
     })
+  }
+
+  updateEyeAndHandVisibilty () {
+    if (this.mode === 'OBSERVE') {
+      this.eyeButton.alpha = 1.0
+      this.handButton.alpha = 0.5
+    } else if (this.mode === 'INTERACT') {
+      this.eyeButton.alpha = 0.5
+      this.handButton.alpha = 1.0
+    } else {
+      this.eyeButton.alpha = 0.0
+      this.handButton.alpha = 0.0
+    }
   }
 
   holdItem (item) {
