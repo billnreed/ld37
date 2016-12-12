@@ -13,7 +13,7 @@ const observe = {
   },
   'Hair': {
     count: 0,
-    text: ['Wow, I have a great head of hair.']
+    text: ['Wow, I have a great head of hair']
   },
   'Key': {
     count: 0,
@@ -21,11 +21,11 @@ const observe = {
   },
   'Window': {
     count: 0,
-    text: ['On either side the river lie.', "No ... I can't look ...", lookOutWindow]
+    text: ['On either side the river lie', "No ... I can't look ...", lookOutWindow]
   },
   'Mirror': {
     count: 0,
-    text: ['My only respite from this weary room.', talkToMirror]
+    text: ['My only respite from this weary room', talkToMirror]
   },
   'Tassel': {
     count: 0,
@@ -333,7 +333,15 @@ export default class GamePlay {
     this.mainText.text = ''
     this.mainText.alpha = 0.0
 
-    return this.writeDialogue().then(() => this.presentChoices())
+    return this.writeDialogue().then(state => {
+      if (state === 'MORE_TEXT') {
+        this.presentChoices()
+      } else if (state === 'NO_MORE') {
+        this.endDialogue()
+      } else {
+        throw new Error(`Unknown state ${state}`)
+      }
+    })
   }
 
   writeDialogue () {
@@ -345,8 +353,11 @@ export default class GamePlay {
       // Get ink to generate the next paragraph
       const line = this.story.Continue()
 
-      // I think each character has a single line of dialogue, don't need to split up by name
-      sections.push(line)
+      // Don't make a new section for a blank line
+      if (line !== '') {
+        // I think each character has a single line of dialogue, don't need to split up by name
+        sections.push(line)
+      }
     }
 
     let sectionIndex = 0
@@ -359,6 +370,10 @@ export default class GamePlay {
       ++sectionCounter
       this.nextLine(sections[sectionIndex])
       this.game.add.tween(this.mainText).to({ alpha: 1 }, 1000, 'Linear', true)
+    } else {
+      // Early out for when there is no more text to display
+      // in this case, we don't want to register an input handler and wait
+      return Promise.resolve('NO_MORE')
     }
 
     // Loop through the rest of text. Resolve promise when there is no more
@@ -386,11 +401,25 @@ export default class GamePlay {
           // We hit the last section
           // Remove handler and resolve
           this.game.input.mousePointer.leftButton.onDown.remove(onDownHandler, this)
-          resolve()
+          resolve('MORE_TEXT')
         }
       }
 
       this.game.input.mousePointer.leftButton.onDown.add(onDownHandler, this)
+    })
+  }
+
+  endDialogue () {
+    return new Promise((resolve, reject) => {
+      // Fade out text
+      this.game.add.tween(this.mainText).to({ alpha: 0.0 }, 500, 'Linear', true)
+                  .onComplete.add(() => {
+                    this.mainText.text = ''
+                    this.mainText.alpha = 0.0
+
+                    this.switchMode('OBSERVE')
+                    resolve()
+                  })
     })
   }
 
@@ -399,16 +428,7 @@ export default class GamePlay {
     if (this.story.currentChoices.length === 0) {
       return new Promise((resolve, reject) => {
         const onDownHandler = () => {
-          // Fade out text
-          this.game.add.tween(this.mainText).to({ alpha: 0.0 }, 500, 'Linear', true)
-                        .onComplete.add(() => {
-                          this.mainText.text = ''
-                          this.mainText.alpha = 0.0
-
-                          resolve()
-                        })
-
-          this.switchMode('OBSERVE')
+          resolve(this.endDialogue())
 
           // Remove handler
           this.game.input.mousePointer.leftButton.onDown.remove(onDownHandler, this)
