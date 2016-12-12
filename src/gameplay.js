@@ -335,9 +335,9 @@ export default class GamePlay {
 
     return this.writeDialogue().then(state => {
       if (state === 'MORE_TEXT') {
-        this.presentChoices()
+        return this.presentChoices()
       } else if (state === 'NO_MORE') {
-        this.endDialogue()
+        return this.endDialogue()
       } else {
         throw new Error(`Unknown state ${state}`)
       }

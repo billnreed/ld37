@@ -6,7 +6,8 @@ VAR win = false
 === first_mirror ===
 The hairs on your neck prickle. You aren't alone.
 * [Joke with your reflection] -> short_argument
-* [Throw something] -> crack_mirror
+// Let the player throw stuff multiple times
++ [Throw something] -> crack_mirror
 + [Ignore] -> END
 
 === crack_mirror ===
@@ -104,7 +105,7 @@ Mirror: You're so entitled!  And selfish!  And ungrateful!  Don't you see that I
 === sorry ===
 Mirror: Thats more like it, now how about we try those deep breathing exercise again.
 Lady: Sigh... Okay... "I am one with the universe...."
-Mirror: Thats better, don't worry, we'll endure this life in perpetuity together.  It's gonna be great!.  
+Mirror: Thats better, don't worry, we'll endure this life in perpetuity together.  It's gonna be great!
 Lady: But I don't want to endure this!  I want to get out!
 Mirror: Well you can't, if you do you'll die! I think....
 -> continue2

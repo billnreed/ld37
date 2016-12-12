@@ -20,6 +20,7 @@
   },
   "scripts": {
     "pack": "webpack",
+    "production": "webpack -p",
     "lint": "eslint ./src",
     "serve": "webpack-dev-server"
   }
