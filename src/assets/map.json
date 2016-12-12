@@ -78,10 +78,10 @@
         }, 
         {
          "height":100,
-         "image":"CutOutMirrorGirl.png",
+         "image":"..\/..\/..\/Users\/John Soklaski\/Downloads\/CutOutMirrorGirl (2).png",
          "name":"CutOutMirrorGirl",
          "offsetx":1134,
-         "offsety":355,
+         "offsety":361,
          "opacity":0.5,
          "type":"imagelayer",
          "visible":true,

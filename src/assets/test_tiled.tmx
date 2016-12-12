@@ -18,8 +18,8 @@
  <imagelayer name="LadyArms" offsetx="794" offsety="582">
   <image source="src/assets/arms.png"/>
  </imagelayer>
- <imagelayer name="CutOutMirrorGirl" opacity="0.5" offsetx="1134" offsety="355">
-  <image source="CutOutMirrorGirl.png" width="326" height="359"/>
+ <imagelayer name="CutOutMirrorGirl" opacity="0.5" offsetx="1134" offsety="361">
+  <image source="../../../Users/John Soklaski/Downloads/CutOutMirrorGirl (2).png" width="326" height="359"/>
  </imagelayer>
  <imagelayer name="Scarf" offsetx="560" offsety="176">
   <image source="scarfWall.png" width="62" height="208"/>
