@@ -42,7 +42,7 @@ const observe = {
   },
   'Scarf': {
     count: 0,
-    text: ["What do I need a scarf for? I can't even leave this room, let alone venture outside"],
+    text: ["What do I need a scarf for? I can't even leave this room, let alone venture outside"]
   },
   'Hook': {
     count: 0,
@@ -162,7 +162,7 @@ export default class GamePlay {
 
     // Add the hotspots from tiled
     const hotspots = map.layers.find(layer => layer.name === 'Hotspots').objects
-    const hotspotSprites = hotspots.map(spot => {
+    hotspots.forEach(spot => {
       const width = spot.width * 0.75
       const height = spot.height * 0.75
 
@@ -535,7 +535,7 @@ export default class GamePlay {
 
     const image = this.game.cache.getImage('GameOverDie')
     const gameOver = this.game.add.image(this.game.width / 2 - image.width / 2, this.game.height / 2 - image.height / 2, 'GameOverDie')
-    
+
     // Add to group to ensure mouse cursor can go over it
     this.dialogueGroup.add(gameOver)
   }
