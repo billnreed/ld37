@@ -431,9 +431,14 @@ export default class GamePlay {
   }
 
   setupInventoryItems () {
+    let accumItemHeight = 0
     return inventory.map((item, i) => {
-      // Directly create sprites on the left group.
-      const sprite = this.game.add.sprite(0, 0 * i, item.key, i)
+      const sprite = this.game.add.sprite(0, accumItemHeight, item.key, i)
+
+      // Accumulate the height of the items as they are added,
+      // so we can position them correctly
+      const image = this.game.cache.getImage(item.key)
+      accumItemHeight += image.height + 10
 
       item.sprite = sprite
       sprite.inputEnabled = true
