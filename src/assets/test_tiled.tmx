@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="100" tilewidth="32" tileheight="32" nextobjectid="20">
+ <imagelayer name="Background">
+  <image source="src/assets/background.png" width="1440" height="960"/>
+ </imagelayer>
+ <imagelayer name="Lady" offsetx="323" offsety="257">
+  <image source="src/assets/Lady.png" width="664" height="710"/>
+ </imagelayer>
+ <imagelayer name="LadyHead" offsetx="779" offsety="263">
+  <image source="src/assets/LadyHead.png"/>
+ </imagelayer>
+ <imagelayer name="Book" offsetx="139" offsety="881">
+  <image source="src/assets/book.png" width="288" height="75"/>
+ </imagelayer>
+ <imagelayer name="Yarn" offsetx="992" offsety="452">
+  <image source="src/assets/yarn.png" width="192" height="207"/>
+ </imagelayer>
+ <imagelayer name="LadyArms" offsetx="794" offsety="582">
+  <image source="src/assets/arms.png" width="381" height="237"/>
+ </imagelayer>
+ <objectgroup color="#c80000" name="Hotspots">
+  <object id="1" name="Pizza" x="1040" y="909" width="68" height="56"/>
+  <object id="3" name="Hair" x="853" y="289" width="100" height="60"/>
+  <object id="4" name="Window" x="227" y="73" width="268" height="496">
+   <ellipse/>
+  </object>
+  <object id="6" name="Mirror" x="1319.8" y="119.52" width="223.94" height="526" rotation="21">
+   <ellipse/>
+  </object>
+  <object id="10" name="Tassel" x="1120" y="477" width="19" height="40"/>
+  <object id="11" name="Lantern" x="1040" y="131" width="62" height="82"/>
+  <object id="14" name="Scarf" x="564" y="201" width="46" height="183"/>
+  <object id="15" name="Hook" x="545" y="167" width="68" height="32"/>
+  <object id="16" name="Book" x="154" y="885" width="263" height="55"/>
+  <object id="18" name="Yarn" x="1039" y="475" width="63" height="104"/>
+  <object id="19" name="Loom" x="863.5" y="666.5" width="95.9792" height="341.489" rotation="-45"/>
+ </objectgroup>
+</map>
