@@ -46,3 +46,11 @@ export function hideMouseCursor () {
 export function showMouseCursor () {
   cursor.visible = true
 }
+
+export function setHeldItem (item) {
+  cursor.loadTexture(item.key, 0)
+}
+
+export function releaseItem () {
+  cursor.loadTexture('mouse_cursors', 'neutral')
+}

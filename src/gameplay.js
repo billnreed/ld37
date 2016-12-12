@@ -1,7 +1,7 @@
 import inkjs from 'inkjs'
 import Phaser from './phaser'
 
-import { loadMouseCursor, createMouseCursor, setMouseCursorState, hideMouseCursor, showMouseCursor } from './mouse'
+import { loadMouseCursor, createMouseCursor, setMouseCursorState, hideMouseCursor, showMouseCursor, setHeldItem, releaseItem } from './mouse'
 
 const observe = {
   'Pizza': {
@@ -55,6 +55,11 @@ const inventory = {
     acquired: true,
     used: false,
     key: 'Yarn' //'ScarfInv'
+  },
+  'Book': {
+    acquired: true,
+    used: false,
+    key: 'Book' //'ScarfInv'
   }
 }
 
@@ -362,15 +367,12 @@ export default class GamePlay {
       // Directly create sprites on the left group.
       const sprite = this.game.add.sprite(0, 0 * i, item.key, i)
 
-      // Enable input detection, then it's possible be dragged.
+      item.sprite = sprite
       sprite.inputEnabled = true
 
-      // Make this item draggable.
-      sprite.input.enableDrag()
-
-      // Then we make it snap to left and right side,
-      // also we make it only snap when released.
-      sprite.input.enableSnap(90, 90, false, true)
+      sprite.events.onInputDown.add(() => {
+        this.holdItem(item)
+      })
 
       // Limit drop location to only the 2 columns.
       // sprite.events.onDragStop.add(fixLocation)
@@ -379,5 +381,24 @@ export default class GamePlay {
 
       return sprite
     })
+  }
+
+  resetInventoryVisibility () {
+    return Object.keys(inventory).map((prop, i) => {
+      const item = inventory[prop]
+      item.sprite.visible = item.acquired
+    })
+  }
+
+  holdItem (item) {
+    if (this.heldItem) {
+      // Reset visiblity on previously held item
+      this.heldItem.sprite.visible = this.heldItem.acquired
+    }
+
+    this.heldItem = item
+    item.sprite.visible = false
+
+    setHeldItem(this.heldItem)
   }
 }
