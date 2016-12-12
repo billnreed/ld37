@@ -331,16 +331,22 @@ export default class GamePlay {
     // At end of dialogue, switch back to regular OBSERVEion
     if (this.story.currentChoices.length === 0) {
       return new Promise((resolve, reject) => {
-        this.game.time.events.add(Phaser.Timer.SECOND, () => {
+        const onDownHandler = () => {
           // Fade out text
           this.game.add.tween(this.mainText).to({ alpha: 0.0 }, 500, 'Linear', true)
                         .onComplete.add(() => {
                           this.mainText.text = ''
                           this.mainText.alpha = 0.0
+
                           resolve()
                         })
           this.switchMode('OBSERVE')
-        })
+
+          // Remove handler
+          this.game.input.mousePointer.leftButton.onDown.remove(onDownHandler, this)
+        }
+
+        this.game.input.mousePointer.leftButton.onDown.add(onDownHandler, this)
       })
     }
 
